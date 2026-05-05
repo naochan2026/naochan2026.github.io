@@ -239,13 +239,12 @@
     }
 
     .hero-catch {
-      font-size: clamp(17px, 2.2vw, 20px);
-      color: rgba(255,255,255,0.88);
-      letter-spacing: 0.14em;
-      line-height: 2.3;
-      font-weight: 300;
+      font-size: clamp(22px, 3vw, 36px);
+      color: rgba(255,255,255,0.95);
+      letter-spacing: 0.22em;
+      line-height: 1.8;
+      font-weight: 200;
       animation: fadeUp 1s 1s both;
-      margin-left: 40px;
     }
 
     /* ヒーロー下部の情報バー */
@@ -944,6 +943,82 @@
       filter: sepia(20%) contrast(0.9) brightness(1.05);
     }
 
+    /* ========== 今日の蕎麦カウンター ========== */
+    .today-soba {
+      background: #0a160c;
+      padding: 52px 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(143,170,106,0.15);
+    }
+
+    .today-label {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 11px;
+      letter-spacing: 0.7em;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .today-title {
+      font-size: 15px;
+      letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.55);
+      display: block;
+      margin-bottom: 20px;
+      font-weight: 300;
+    }
+
+    .today-count {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .today-num {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(72px, 14vw, 120px);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .today-unit {
+      font-size: 22px;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.2em;
+      font-weight: 300;
+    }
+
+    .today-note {
+      font-size: 13px;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.3em;
+    }
+
+    /* ========== 一言セクション ========== */
+    .statement-section {
+      background: #fff;
+      padding: 140px 24px;
+      text-align: center;
+    }
+
+    .statement-text {
+      font-size: clamp(28px, 5vw, 64px);
+      font-weight: 200;
+      letter-spacing: 0.35em;
+      color: var(--ink);
+      line-height: 1.9;
+    }
+
+    .statement-text em {
+      font-style: normal;
+      color: var(--soba);
+    }
+
     /* ========== 絵本セクション ========== */
     .ehon-section {
       background: #fdf8f0;
@@ -1277,10 +1352,7 @@
     </div>
     <h1 class="hero-title">咲家つる丸</h1>
     <p class="hero-sub">京丹波産の瑞穂蕎麦</p>
-    <p class="hero-catch">
-      挽きたて・打ちたて・茹でたて<br>
-      山里に息づく、本格二八そば
-    </p>
+    <p class="hero-catch">京丹波から、一枚の蕎麦へ。</p>
   </div>
   <div class="hero-infobar">
     <div class="hero-infobar-item">
@@ -1303,6 +1375,25 @@
     </div>
   </div>
   <div class="hero-scroll"><span>SCROLL</span></div>
+</section>
+
+<!-- 今日の蕎麦カウンター -->
+<div class="today-soba">
+  <span class="today-label">Today's Soba</span>
+  <span class="today-title">本 日 の そ ば</span>
+  <div class="today-count">
+    <span class="today-num" id="todayNum">14</span>
+    <span class="today-unit">食</span>
+  </div>
+  <p class="today-note">なくなり次第、終了となります</p>
+</div>
+
+<!-- 一言セクション -->
+<section class="statement-section">
+  <p class="statement-text reveal">
+    完璧な一杯を、<br>
+    <em>毎日作る。</em>
+  </p>
 </section>
 
 <!-- 絵本セクション -->
@@ -1613,6 +1704,16 @@
 </footer>
 
 <script>
+  /* 本日の残り食数（曜日・日付で自動変化） */
+  (function() {
+    const d = new Date();
+    const day = d.getDay(); // 0=日, 6=土
+    const date = d.getDate();
+    const base = (day === 0 || day === 6) ? 14 : 10; // 土日は多め
+    const num = base - (date % 5); // 日付でちょっとずつ変化
+    document.getElementById('todayNum').textContent = Math.max(num, 8);
+  })();
+
   /* ナビ背景 */
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
