@@ -1012,23 +1012,33 @@
     .ehon-nav {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 16px;
       margin-top: 28px;
     }
 
     .ehon-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 1px solid rgba(92,61,30,0.25);
-      background: #fff;
-      cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 4px;
+      width: 88px;
+      height: 72px;
+      border-radius: 8px;
+      border: 2px solid var(--soba);
+      background: #fff;
+      cursor: pointer;
       color: var(--soba);
       transition: all 0.25s;
-      font-size: 26px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .ehon-btn .ehon-btn-label {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      font-family: "Noto Serif JP", serif;
+      font-weight: 400;
     }
 
     .ehon-btn:hover {
@@ -1318,8 +1328,8 @@
       <div class="ehon-card"><img src="ehon_07.png" alt="咲家つる丸でお待ちしています"></div>
     </div>
     <div class="ehon-nav">
-      <button class="ehon-btn" onclick="ehonScroll(-1)" aria-label="前へ">&#8592;</button>
-      <button class="ehon-btn" onclick="ehonScroll(1)" aria-label="次へ">&#8594;</button>
+      <button class="ehon-btn" onclick="ehonScroll(-1)" aria-label="前へ">&#8592;<span class="ehon-btn-label">前のページ</span></button>
+      <button class="ehon-btn" onclick="ehonScroll(1)" aria-label="次へ">&#8594;<span class="ehon-btn-label">次のページ</span></button>
     </div>
   </div>
 </section>
