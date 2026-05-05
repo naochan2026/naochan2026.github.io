@@ -1709,9 +1709,9 @@
     const d = new Date();
     const day = d.getDay(); // 0=日, 6=土
     const date = d.getDate();
-    const base = (day === 0 || day === 6) ? 14 : 10; // 土日は多め
-    const num = base - (date % 5); // 日付でちょっとずつ変化
-    document.getElementById('todayNum').textContent = Math.max(num, 8);
+    const base = (day === 0 || day === 6) ? 20 : 17; // 土日は多め
+    const num = base - (date % 4); // 日付でちょっとずつ変化
+    document.getElementById('todayNum').textContent = Math.max(num, 15);
   })();
 
   /* ナビ背景 */
