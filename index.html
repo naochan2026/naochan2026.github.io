@@ -1688,16 +1688,6 @@
 </footer>
 
 <script>
-  /* 本日の残り食数（曜日・日付で自動変化） */
-  (function() {
-    const d = new Date();
-    const day = d.getDay(); // 0=日, 6=土
-    const date = d.getDate();
-    const base = (day === 0 || day === 6) ? 20 : 17; // 土日は多め
-    const num = base - (date % 4); // 日付でちょっとずつ変化
-    document.getElementById('todayNum').textContent = Math.max(num, 15);
-  })();
-
   /* ナビ背景 */
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
