@@ -1024,6 +1024,39 @@
     .ehon-section .section-label::before { background: var(--soba); }
     .ehon-section .section-ja { color: var(--ink); }
 
+    .ehon-guide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: var(--soba);
+      border-radius: 16px;
+      padding: 20px 32px;
+      margin: 0 24px 36px;
+    }
+
+    .ehon-guide-arrow {
+      font-size: 28px;
+      color: #fff;
+      animation: bounce 1.2s ease-in-out infinite alternate;
+    }
+
+    .ehon-guide-arrow:first-child { animation-direction: alternate-reverse; }
+
+    @keyframes bounce {
+      from { transform: translateX(0); }
+      to   { transform: translateX(6px); }
+    }
+
+    .ehon-guide-text {
+      font-size: 20px;
+      color: #fff;
+      letter-spacing: 0.12em;
+      line-height: 1.8;
+      text-align: center;
+      font-weight: 400;
+    }
+
     .ehon-lead {
       font-size: 17px;
       color: var(--stone);
@@ -1384,6 +1417,12 @@
       絵本の中のような、やさしい時間がここにあります。
     </p>
   </div>
+  <div class="ehon-guide reveal d1">
+    <span class="ehon-guide-arrow">◀</span>
+    <span class="ehon-guide-text">ボタンを押すと<br>ページがめくれます</span>
+    <span class="ehon-guide-arrow">▶</span>
+  </div>
+
   <div class="ehon-track-wrap reveal d2">
     <div class="ehon-track" id="ehonTrack">
       <div class="ehon-card"><img src="ehon_01.png" alt="緑のあるお蕎麦屋さん 咲家つる丸"></div>
