@@ -1075,8 +1075,8 @@
     .ehon-nav {
       display: flex;
       justify-content: center;
-      gap: 16px;
-      margin-top: 28px;
+      gap: 20px;
+      margin-top: 36px;
     }
 
     .ehon-btn {
@@ -1084,35 +1084,35 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      width: 88px;
-      height: 72px;
-      border-radius: 8px;
-      border: 2px solid var(--soba);
-      background: #fff;
+      gap: 6px;
+      width: 140px;
+      height: 90px;
+      border-radius: 12px;
+      border: none;
+      background: var(--soba);
       cursor: pointer;
-      color: var(--soba);
+      color: #fff;
       transition: all 0.25s;
-      font-size: 24px;
+      font-size: 32px;
       font-weight: bold;
+      box-shadow: 0 4px 20px rgba(92,61,30,0.3);
     }
 
     .ehon-btn .ehon-btn-label {
-      font-size: 12px;
+      font-size: 15px;
       letter-spacing: 0.15em;
       font-family: "Noto Serif JP", serif;
       font-weight: 400;
     }
 
-    .ehon-btn:hover {
-      background: var(--soba);
-      color: #fff;
-      border-color: var(--soba);
+    .ehon-btn:hover, .ehon-btn:active {
+      background: var(--soba2);
+      transform: scale(1.05);
     }
 
     @media (max-width: 768px) {
       .ehon-section { padding: 72px 0 60px; }
-      .ehon-card { flex: 0 0 82vw; }
+      .ehon-card { flex: 0 0 92vw; }
     }
 
     /* ========== Instagram ========== */
