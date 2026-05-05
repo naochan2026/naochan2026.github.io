@@ -970,33 +970,21 @@
       font-weight: 300;
     }
 
-    .today-count {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .today-num {
-      font-family: "Cormorant Garamond", serif;
-      font-size: clamp(72px, 14vw, 120px);
-      font-weight: 300;
+    .today-message {
+      font-size: clamp(32px, 7vw, 64px);
+      font-weight: 200;
       color: #fff;
-      line-height: 1;
+      letter-spacing: 0.45em;
+      margin-bottom: 24px;
+      line-height: 1.4;
     }
 
-    .today-unit {
-      font-size: 22px;
-      color: rgba(255,255,255,0.7);
-      letter-spacing: 0.2em;
+    .today-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.18em;
+      line-height: 2.4;
       font-weight: 300;
-    }
-
-    .today-note {
-      font-size: 13px;
-      color: rgba(255,255,255,0.38);
-      letter-spacing: 0.3em;
     }
 
     /* ========== 一言セクション ========== */
@@ -1377,16 +1365,11 @@
   <div class="hero-scroll"><span>SCROLL</span></div>
 </section>
 
-<!-- 今日の蕎麦カウンター -->
+<!-- 今日の蕎麦 -->
 <div class="today-soba">
   <span class="today-label">Today's Soba</span>
-  <span class="today-title">本 日 の そ ば</span>
-  <div class="today-count">
-    <span class="today-num" id="todayNum">14</span>
-    <span class="today-unit">食</span>
-  </div>
-  <p class="today-note">なくなり次第、終了となります</p>
-  <p class="today-note" style="margin-top:10px; font-size:11px; opacity:0.5;">※ 目安の食数です。当日の状況により異なります。</p>
+  <p class="today-message">今日も、精一杯。</p>
+  <p class="today-sub">朝から丁寧に仕込んだ一杯を、<br>心を込めてお出しします。</p>
 </div>
 
 <!-- 一言セクション -->
