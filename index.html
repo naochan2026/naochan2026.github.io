@@ -1738,6 +1738,26 @@
 </footer>
 
 <script>
+  /* スマホ対応：タイトルと絵本をJSで確実に設定 */
+  (function() {
+    const w = window.innerWidth;
+    if (w <= 900) {
+      // タイトルを1行に
+      const title = document.querySelector('.hero-title');
+      if (title) {
+        title.style.fontSize = '26px';
+        title.style.letterSpacing = '0.08em';
+        title.style.whiteSpace = 'nowrap';
+      }
+      // 絵本カードを画面幅に
+      document.querySelectorAll('.ehon-card').forEach(c => {
+        c.style.flex = '0 0 ' + w + 'px';
+        c.style.width = w + 'px';
+        c.style.minWidth = w + 'px';
+      });
+    }
+  })();
+
   /* ナビ背景 */
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
