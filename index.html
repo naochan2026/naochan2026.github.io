@@ -1076,34 +1076,21 @@
 
     .ehon-track-wrap {
       position: relative;
+      width: 100%;
     }
 
     .ehon-track {
-      display: flex;
-      gap: 0;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding: 0 0 32px;
-      cursor: grab;
+      display: block;
+      width: 100%;
     }
-
-    .ehon-track::-webkit-scrollbar { display: none; }
-    .ehon-track.grabbing { cursor: grabbing; }
 
     .ehon-card {
-      flex: 0 0 300px;
-      scroll-snap-align: start;
-      border-radius: 4px;
-      overflow: hidden;
-      box-shadow: 0 8px 40px rgba(92,61,30,0.10);
-      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      display: none;
+      width: 100%;
     }
 
-    .ehon-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 16px 56px rgba(92,61,30,0.16);
+    .ehon-card.active {
+      display: block;
     }
 
     .ehon-card img {
@@ -1113,10 +1100,10 @@
       object-fit: cover;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .ehon-card img {
         aspect-ratio: unset;
-        height: 75vh;
+        height: 70vh;
         object-fit: cover;
       }
     }
@@ -1444,7 +1431,7 @@
 
   <div class="ehon-track-wrap reveal d2">
     <div class="ehon-track" id="ehonTrack">
-      <div class="ehon-card"><img src="ehon_01.png" alt="緑のあるお蕎麦屋さん 咲家つる丸"></div>
+      <div class="ehon-card active"><img src="ehon_01.png" alt="緑のあるお蕎麦屋さん 咲家つる丸"></div>
       <div class="ehon-card"><img src="ehon_02.png" alt="京丹波の自然の中を、やさしい風が吹いています"></div>
       <div class="ehon-card"><img src="ehon_03.png" alt="窓辺には、多肉植物たち"></div>
       <div class="ehon-card"><img src="ehon_04.png" alt="瑞穂蕎麦、丁寧に作られた一枚"></div>
@@ -1786,30 +1773,15 @@
     document.body.style.overflow = '';
   }
 
-  /* 絵本カルーセル */
-  function ehonScroll(dir) {
-    const track = document.getElementById('ehonTrack');
-    track.scrollBy({ left: dir * 320, behavior: 'smooth' });
-  }
+  /* 絵本カルーセル（1枚切り替え式） */
+  var ehonIndex = 0;
+  var ehonCards = document.querySelectorAll('.ehon-card');
 
-  /* 絵本ドラッグスクロール */
-  (function() {
-    const track = document.getElementById('ehonTrack');
-    let isDown = false, startX, scrollLeft;
-    track.addEventListener('mousedown', e => {
-      isDown = true; track.classList.add('grabbing');
-      startX = e.pageX - track.offsetLeft;
-      scrollLeft = track.scrollLeft;
-    });
-    track.addEventListener('mouseleave', () => { isDown = false; track.classList.remove('grabbing'); });
-    track.addEventListener('mouseup', () => { isDown = false; track.classList.remove('grabbing'); });
-    track.addEventListener('mousemove', e => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - track.offsetLeft;
-      track.scrollLeft = scrollLeft - (x - startX) * 1.5;
-    });
-  })();
+  function ehonScroll(dir) {
+    ehonCards[ehonIndex].classList.remove('active');
+    ehonIndex = (ehonIndex + dir + ehonCards.length) % ehonCards.length;
+    ehonCards[ehonIndex].classList.add('active');
+  }
 
   /* スクロールフェードイン */
   const io = new IntersectionObserver(entries => {
