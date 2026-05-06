@@ -34,6 +34,8 @@
       font-size: 16px;
       line-height: 1.9;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     a { color: inherit; text-decoration: none; }
@@ -1281,7 +1283,7 @@
       .sp-tel-bar { display: block; }
 
       .hero-content { padding: 0 28px 140px; }
-      .hero-title { font-size: 26px !important; letter-spacing: 0.08em !important; white-space: nowrap !important; }
+      .hero-title { font-size: 26px !important; letter-spacing: 0.05em !important; white-space: nowrap !important; word-break: keep-all !important; overflow-wrap: normal !important; min-width: max-content !important; }
       .hero-sub { font-size: 12px; }
       .hero-scroll { right: 24px; bottom: 80px; }
       .hero-infobar { overflow-x: auto; justify-content: flex-start; }
@@ -1329,7 +1331,7 @@
     }
 
     @media (max-width: 420px) {
-      .hero-title { font-size: 24px !important; letter-spacing: 0.08em !important; white-space: nowrap !important; }
+      .hero-title { font-size: 22px !important; letter-spacing: 0.04em !important; white-space: nowrap !important; word-break: keep-all !important; overflow-wrap: normal !important; min-width: max-content !important; }
     }
   </style>
 </head>
@@ -1377,7 +1379,7 @@
     <div class="hero-label">
       <span>Kyotamba / Mizuho Soba</span>
     </div>
-    <h1 class="hero-title" style="white-space:nowrap; font-size:clamp(24px,5.5vw,96px); letter-spacing:0.15em;">咲家つる丸</h1>
+    <h1 class="hero-title">咲家つる丸</h1>
     <p class="hero-sub">京丹波産の瑞穂蕎麦</p>
     <p class="hero-catch">京丹波から、一枚の蕎麦へ。</p>
   </div>
@@ -1732,9 +1734,12 @@
       // タイトルを1行に
       const title = document.querySelector('.hero-title');
       if (title) {
-        title.style.fontSize = '26px';
-        title.style.letterSpacing = '0.08em';
+        title.style.fontSize = w <= 420 ? '22px' : '26px';
+        title.style.letterSpacing = w <= 420 ? '0.04em' : '0.05em';
         title.style.whiteSpace = 'nowrap';
+        title.style.wordBreak = 'keep-all';
+        title.style.overflowWrap = 'normal';
+        title.style.minWidth = 'max-content';
       }
       // 絵本カードを画面幅に
       document.querySelectorAll('.ehon-card').forEach(c => {
