@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>レストランれいん房｜創業50年・名物みそとんかつ｜京都・南丹市（園部駅 徒歩10分）</title>
+<meta name="description" content="京都府南丹市の老舗和食レストラン「れいん房」。創業50年、名物みそとんかつをはじめ国産食材の手作り料理。ご法要・慶事・宴会・仕出し弁当・テイクアウトも承ります。園部駅より徒歩10分、駐車場完備。">
+<style>
+  :root {
+    --kuro: #2b2520;        /* 基調の墨色 */
+    --shiro: #faf7f2;       /* 生成りの白 */
+    --beni: #a8323a;        /* 紅色（アクセント） */
+    --kin: #b8924a;         /* 金茶 */
+    --miso: #8a5a2b;        /* 味噌色 */
+    --usuzumi: #6b6259;     /* 薄墨（補助文字） */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", serif;
+    color: var(--kuro);
+    background: var(--shiro);
+    font-size: 18px;
+    line-height: 1.9;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+
+  /* ===== 虹の帯（店名「れいんぼう」にちなんだ控えめなアクセント） ===== */
+  .rainbow-line {
+    height: 5px;
+    background: linear-gradient(90deg, #c0392b, #d68910, #b7950b, #1e8449, #2471a3, #6c3483);
+    opacity: 0.85;
+  }
+
+  /* ===== ヘッダー ===== */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250, 247, 242, 0.97);
+    border-bottom: 1px solid #e0d8cc;
+  }
+  .header-inner {
+    max-width: 1080px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px;
+  }
+  .logo { font-size: 1.4rem; font-weight: bold; letter-spacing: 0.1em; }
+  .logo small { display: block; font-size: 0.65rem; color: var(--usuzumi); letter-spacing: 0.2em; }
+  nav ul { display: flex; gap: 22px; list-style: none; }
+  nav a { text-decoration: none; font-size: 0.95rem; letter-spacing: 0.05em; }
+  nav a:hover { color: var(--beni); }
+  .header-tel {
+    background: var(--beni); color: #fff;
+    padding: 8px 18px; border-radius: 4px;
+    text-decoration: none; font-size: 0.95rem; white-space: nowrap;
+  }
+  .nav-sp { display: none; }
+
+  /* ===== ヒーロー ===== */
+  .hero {
+    position: relative;
+    min-height: 80vh;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    color: #fff;
+    /* ★写真に差し替え：background-image: url('images/hero.jpg'); */
+    background:
+      linear-gradient(rgba(35, 28, 22, 0.55), rgba(35, 28, 22, 0.55)),
+      radial-gradient(ellipse at 30% 20%, #5a4a38, #2e261d 70%);
+    background-size: cover; background-position: center;
+    padding: 80px 20px;
+  }
+  .hero-inner { max-width: 760px; }
+  .hero .catch {
+    font-size: clamp(1.7rem, 5vw, 2.8rem);
+    font-weight: bold; letter-spacing: 0.12em; line-height: 1.6;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .hero .sub {
+    margin-top: 24px;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  }
+  .hero .since {
+    display: inline-block; margin-top: 30px;
+    border: 1px solid rgba(255,255,255,0.7);
+    padding: 8px 28px; font-size: 0.95rem; letter-spacing: 0.25em;
+  }
+  .hero-btns { margin-top: 40px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; text-decoration: none;
+    padding: 16px 38px; border-radius: 4px;
+    font-size: 1.05rem; letter-spacing: 0.1em;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-beni { background: var(--beni); color: #fff; }
+  .btn-shiro { background: rgba(255,255,255,0.92); color: var(--kuro); }
+
+  /* ===== 共通セクション ===== */
+  section { padding: 80px 20px; }
+  .inner { max-width: 1080px; margin: 0 auto; }
+  .sec-title {
+    text-align: center; font-size: clamp(1.5rem, 4vw, 2rem);
+    letter-spacing: 0.18em; margin-bottom: 12px;
+  }
+  .sec-title-en {
+    text-align: center; color: var(--kin);
+    font-size: 0.85rem; letter-spacing: 0.3em; margin-bottom: 50px;
+  }
+
+  /* ===== 名物みそとんかつ ===== */
+  .meibutsu { background: #fff; }
+  .meibutsu-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 50px; align-items: center;
+  }
+  .photo-frame {
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(135deg, #e8e0d4, #d6c9b5);
+    border: 1px solid #d0c5b4;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--usuzumi); font-size: 0.9rem; letter-spacing: 0.1em;
+  }
+  .meibutsu h3 {
+    font-size: 1.6rem; letter-spacing: 0.1em; margin-bottom: 20px;
+    color: var(--miso);
+  }
+  .meibutsu p { margin-bottom: 18px; }
+  .price-tag {
+    display: inline-block; margin-top: 8px;
+    border-top: 1px solid var(--kin); border-bottom: 1px solid var(--kin);
+    padding: 10px 24px; font-size: 1.2rem; letter-spacing: 0.08em;
+  }
+  .price-tag small { font-size: 0.8rem; color: var(--usuzumi); }
+
+  /* ===== こだわり ===== */
+  .kodawari { background: var(--kuro); color: var(--shiro); }
+  .kodawari .sec-title { color: var(--shiro); }
+  .kodawari-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+    text-align: center;
+  }
+  .kodawari-item .mark {
+    width: 80px; height: 80px; margin: 0 auto 20px;
+    border: 1px solid var(--kin); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: var(--kin);
+  }
+  .kodawari-item h3 { font-size: 1.2rem; letter-spacing: 0.12em; margin-bottom: 14px; }
+  .kodawari-item p { font-size: 0.95rem; color: #d8d2c8; text-align: left; }
+
+  /* ===== ご利用シーン ===== */
+  .scene-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+  .scene-card {
+    background: #fff; border: 1px solid #e0d8cc; border-radius: 6px;
+    overflow: hidden;
+  }
+  .scene-card .photo-frame { aspect-ratio: 16 / 9; }
+  .scene-card .body { padding: 24px 28px 30px; }
+  .scene-card h3 {
+    font-size: 1.25rem; letter-spacing: 0.1em; margin-bottom: 12px;
+    color: var(--beni);
+  }
+  .scene-card p { font-size: 0.95rem; }
+
+  /* ===== 店舗情報 ===== */
+  .info { background: #fff; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+  .info table { width: 100%; border-collapse: collapse; }
+  .info th, .info td {
+    padding: 16px 10px; border-bottom: 1px solid #e0d8cc;
+    text-align: left; vertical-align: top; font-size: 0.98rem;
+  }
+  .info th { width: 7em; color: var(--miso); font-weight: bold; white-space: nowrap; }
+  .map-frame { width: 100%; height: 100%; min-height: 340px; border: 1px solid #e0d8cc; }
+  .map-frame iframe { width: 100%; height: 100%; border: 0; }
+
+  /* ===== ご予約 ===== */
+  .reserve {
+    background: linear-gradient(rgba(43,37,32,0.92), rgba(43,37,32,0.92)),
+      radial-gradient(ellipse at 70% 30%, #5a4a38, #2e261d);
+    color: #fff; text-align: center;
+  }
+  .reserve .tel-big {
+    font-size: clamp(1.8rem, 6vw, 3rem); letter-spacing: 0.05em;
+    color: #fff; text-decoration: none; font-weight: bold;
+  }
+  .reserve .free-dial { margin-top: 6px; font-size: 1.05rem; color: #e8dfc8; }
+  .reserve .note { margin-top: 24px; font-size: 0.9rem; color: #c9c2b8; }
+
+  footer {
+    background: var(--kuro); color: #b5aea4;
+    text-align: center; padding: 30px 20px; font-size: 0.85rem;
+  }
+
+  /* ===== スマホ対応 ===== */
+  @media (max-width: 820px) {
+    body { font-size: 17px; }
+    nav { display: none; }
+    .nav-sp { display: block; }
+    .meibutsu-grid, .info-grid { grid-template-columns: 1fr; gap: 30px; }
+    .kodawari-grid { grid-template-columns: 1fr; }
+    .scene-grid { grid-template-columns: 1fr; }
+    section { padding: 60px 16px; }
+    .map-frame { min-height: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="rainbow-line"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">レストランれいん房<small>SINCE 1970s ｜ 京都・南丹</small></div>
+    <nav>
+      <ul>
+        <li><a href="#meibutsu">名物みそとんかつ</a></li>
+        <li><a href="#kodawari">こだわり</a></li>
+        <li><a href="#scene">ご利用シーン</a></li>
+        <li><a href="#info">店舗情報</a></li>
+      </ul>
+    </nav>
+    <a class="header-tel" href="tel:0120552887">☎ ご予約はこちら</a>
+  </div>
+</header>
+
+<!-- ===== ヒーロー ===== -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1 class="catch">訪れる人に、安らぎを。<br>名物みそとんかつの店</h1>
+    <p class="sub">国産食材を使った手作りの和食と、心地よいひとときを。<br>ご家族の集まりから、ご法要・ご宴会まで。</p>
+    <div class="since">創業五十余年　京都・南丹（園部駅 徒歩10分）</div>
+    <div class="hero-btns">
+      <a class="btn btn-beni" href="tel:0120552887">☎ 0120-55-2887</a>
+      <a class="btn btn-shiro" href="#info">店舗情報・アクセス</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 名物みそとんかつ ===== -->
+<section class="meibutsu" id="meibutsu">
+  <div class="inner">
+    <h2 class="sec-title">名物　みそとんかつ</h2>
+    <p class="sec-title-en">— MISO TONKATSU —</p>
+    <div class="meibutsu-grid">
+      <div class="photo-frame">※ みそとんかつの写真</div>
+      <div>
+        <h3>味噌を「かける」のではなく、<br>「挟んで」揚げる。</h3>
+        <p>西京味噌と九条ねぎ（または青しそ）を豚肉に挟んで揚げた、当店だけの一品。ソースをかけないので、揚げたてのサクサクとした衣の食感をそのままお楽しみいただけます。</p>
+        <p>サラダ・赤だし・お漬物付き。赤だしはミニうどん・そばへの変更（＋250円）、茶碗蒸しの追加（＋320円）もできます。</p>
+        <div class="price-tag">みそとんかつ定食　1,700円<small>（税込）</small></div>
+        <p style="margin-top:18px; font-size:0.9rem; color:var(--usuzumi);">※ お持ち帰り用「みそとんかつ弁当」（1,700円）もございます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== こだわり ===== -->
+<section class="kodawari" id="kodawari">
+  <div class="inner">
+    <h2 class="sec-title">れいん房のこだわり</h2>
+    <p class="sec-title-en">— OUR PROMISE —</p>
+    <div class="kodawari-grid">
+      <div class="kodawari-item">
+        <div class="mark">壱</div>
+        <h3>国産食材の手作り料理</h3>
+        <p>創業から五十余年、変わらぬ味を守り続けています。国産の食材を使い、一品一品を店内で手作りしています。</p>
+      </div>
+      <div class="kodawari-item">
+        <div class="mark">弐</div>
+        <h3>くつろぎの空間</h3>
+        <p>テーブル席のほか、30名様までのお座敷をご用意。小さなお子様連れからご年配の方まで、ゆっくりお過ごしいただけます。</p>
+      </div>
+      <div class="kodawari-item">
+        <div class="mark">参</div>
+        <h3>地域とともに</h3>
+        <p>ご家族の節目の集まり、地域の宴会、お弁当の配達まで。南丹・園部の皆様の「いつもの店」であり続けます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ご利用シーン ===== -->
+<section id="scene">
+  <div class="inner">
+    <h2 class="sec-title">ご利用シーン</h2>
+    <p class="sec-title-en">— SERVICE —</p>
+    <div class="scene-grid">
+      <div class="scene-card">
+        <div class="photo-frame">※ 法要会席の写真</div>
+        <div class="body">
+          <h3>ご法要・お祝いの席に</h3>
+          <p>ご法要会席・慶事料理を承ります。お座敷（30名様まで）で、ご親族おそろいでゆっくりとお過ごしいただけます。お料理の内容・ご予算はお気軽にご相談ください。</p>
+        </div>
+      </div>
+      <div class="scene-card">
+        <div class="photo-frame">※ 仕出し弁当の写真</div>
+        <div class="body">
+          <h3>仕出し・お弁当の配達</h3>
+          <p>ご会合・ご法事・行事に、手作りの仕出し弁当をお届けします。名物みそとんかつ弁当のお持ち帰りもどうぞ。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 店舗情報 ===== -->
+<section class="info" id="info">
+  <div class="inner">
+    <h2 class="sec-title">店舗情報・アクセス</h2>
+    <p class="sec-title-en">— ACCESS —</p>
+    <div class="info-grid">
+      <table>
+        <tr><th>店名</th><td>レストランれいん房　本店</td></tr>
+        <tr><th>住所</th><td>〒629-0166<br>京都府南丹市八木町室河原中塚29</td></tr>
+        <tr><th>電話</th><td><a href="tel:0120552887">0120-55-2887</a>（フリーダイヤル）<br><a href="tel:0771422887">0771-42-2887</a></td></tr>
+        <tr><th>営業時間</th><td>昼　11:00〜15:00（L.O. 14:30）<br>夜　17:00〜21:00（L.O. 20:30）</td></tr>
+        <tr><th>定休日</th><td>毎週火曜日</td></tr>
+        <tr><th>アクセス</th><td>JR嵯峨野線「園部駅」より徒歩約10分<br>駐車場完備</td></tr>
+        <tr><th>お支払い</th><td>クレジットカード・QRコード決済 可</td></tr>
+      </table>
+      <div class="map-frame">
+        <iframe src="https://maps.google.com/maps?q=%E3%82%8C%E3%81%84%E3%82%93%E6%88%BF%20%E5%8D%97%E4%B8%B9%E5%B8%82&z=15&output=embed" loading="lazy" title="れいん房 地図"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ご予約 ===== -->
+<section class="reserve">
+  <div class="inner">
+    <h2 class="sec-title" style="color:#fff;">ご予約・お問い合わせ</h2>
+    <p class="sec-title-en">— RESERVATION —</p>
+    <p>ご予約はお電話にて承っております。</p>
+    <p style="margin-top:24px;"><a class="tel-big" href="tel:0120552887">☎ 0120-55-2887</a></p>
+    <p class="free-dial">フリーダイヤル（通話無料）／ 0771-42-2887</p>
+    <p class="note">受付時間：営業時間内（毎週火曜日定休）<br>ご法要・ご宴会・仕出しのご相談もお気軽にどうぞ。</p>
+  </div>
+</section>
+
+<footer>
+  <p>レストランれいん房　京都府南丹市八木町室河原中塚29</p>
+  <p style="margin-top:8px;">&copy; Restaurant Reinbou</p>
+</footer>
+
+<div class="rainbow-line"></div>
+
+</body>
+</html>
