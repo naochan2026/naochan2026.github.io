@@ -25,6 +25,9 @@
   }
   img { max-width: 100%; display: block; }
   a { color: inherit; }
+  /* 言葉のまとまり単位で改行（文節の途中で切れない） */
+  .knk { display: inline-block; }
+  .sp-only { display: none; }
 
   /* ===== 虹の帯（店名「れいんぼう」にちなんだ控えめなアクセント） ===== */
   .rainbow-line {
@@ -205,6 +208,22 @@
     .scene-grid { grid-template-columns: 1fr; }
     section { padding: 60px 16px; }
     .map-frame { min-height: 280px; }
+
+    /* スマホでの折り返し調整 */
+    .pc-br { display: none; }           /* PC用の改行を解除 */
+    .pc-only { display: none; }
+    .sp-only { display: inline; }
+    .logo { font-size: 1.15rem; }
+    .header-tel { padding: 10px 14px; font-size: 1rem; }
+    .hero .catch { font-size: clamp(1.9rem, 8.5vw, 2.6rem); }
+    .hero .sub { font-size: 1.15rem; }
+    .hero .since { font-size: 0.95rem; padding: 8px 14px; letter-spacing: 0.12em; }
+    .btn { width: 100%; max-width: 340px; text-align: center; padding: 18px 0; font-size: 1.2rem; }
+    .price-tag { display: block; text-align: center; font-size: 1.35rem; padding: 12px 10px; }
+    .info th { width: 5em; }
+    .info th, .info td { font-size: 1.05rem; padding: 16px 6px; }
+    .reserve .tel-big { font-size: clamp(1.9rem, 9.5vw, 2.6rem); }
+    .reserve .free-dial { font-size: 1.1rem; }
   }
 </style>
 </head>
@@ -223,16 +242,16 @@
         <li><a href="#info">店舗情報</a></li>
       </ul>
     </nav>
-    <a class="header-tel" href="tel:0120552887">☎ ご予約はこちら</a>
+    <a class="header-tel" href="tel:0120552887">☎ <span class="pc-only">ご予約はこちら</span><span class="sp-only">ご予約</span></a>
   </div>
 </header>
 
 <!-- ===== ヒーロー ===== -->
 <div class="hero">
   <div class="hero-inner">
-    <h1 class="catch">訪れる人に、安らぎを。<br>名物みそとんかつの店</h1>
-    <p class="sub">国産食材を使った手作りの和食と、心地よいひとときを。<br>ご家族の集まりから、ご法要・ご宴会まで。</p>
-    <div class="since">創業五十余年　京都・南丹（園部駅 徒歩10分）</div>
+    <h1 class="catch"><span class="knk">訪れる人に、</span><span class="knk">安らぎを。</span><br><span class="knk">名物みそとんかつの店</span></h1>
+    <p class="sub"><span class="knk">国産食材の手作り和食で、</span><span class="knk">心地よいひとときを。</span><br class="pc-br"><span class="knk">ご家族の集まりから、</span><span class="knk">ご法要・ご宴会まで。</span></p>
+    <div class="since"><span class="knk">創業五十余年</span>　<span class="knk">京都・南丹</span><span class="knk">（園部駅 徒歩10分）</span></div>
     <div class="hero-btns">
       <a class="btn btn-beni" href="tel:0120552887">☎ 0120-55-2887</a>
       <a class="btn btn-shiro" href="#info">店舗情報・アクセス</a>
@@ -248,10 +267,11 @@
     <div class="meibutsu-grid">
       <div class="photo-frame">※ みそとんかつの写真</div>
       <div>
-        <h3>味噌を「かける」のではなく、<br>「挟んで」揚げる。</h3>
-        <p>西京味噌と九条ねぎ（または青しそ）を豚肉に挟んで揚げた、当店だけの一品。ソースをかけないので、揚げたてのサクサクとした衣の食感をそのままお楽しみいただけます。</p>
-        <div class="price-tag">みそとんかつ定食　1,700円<small>（税込）</small></div>
-        <p style="margin-top:18px; font-size:0.9rem; color:var(--usuzumi);">※ お持ち帰り用「みそとんかつ弁当」（1,700円）もございます。</p>
+        <h3><span class="knk">味噌を「かける」のではなく、</span><br class="pc-br"><span class="knk">「挟んで」揚げる。</span></h3>
+        <p><span class="knk">西京味噌と九条ねぎを</span><span class="knk">豚肉に挟んで揚げた、</span><span class="knk">当店だけの一品。</span></p>
+        <p><span class="knk">ソースをかけないので、</span><span class="knk">揚げたての</span><span class="knk">サクサクとした食感を</span><span class="knk">お楽しみいただけます。</span></p>
+        <div class="price-tag"><span class="knk">みそとんかつ定食</span>　<span class="knk">1,700円<small>（税込）</small></span></div>
+        <p style="margin-top:18px; font-size:0.95rem; color:var(--usuzumi);"><span class="knk">※ お持ち帰り用</span><span class="knk">「みそとんかつ弁当」も</span><span class="knk">ございます。</span></p>
       </div>
     </div>
   </div>
@@ -266,17 +286,17 @@
       <div class="kodawari-item">
         <div class="mark">壱</div>
         <h3>国産食材の手作り料理</h3>
-        <p>創業から五十余年、変わらぬ味を守り続けています。国産の食材を使い、一品一品を店内で手作りしています。</p>
+        <p><span class="knk">創業から五十余年、</span><span class="knk">変わらぬ味を</span><span class="knk">守り続けています。</span><span class="knk">国産の食材を使い、</span><span class="knk">一品一品を店内で</span><span class="knk">手作りしています。</span></p>
       </div>
       <div class="kodawari-item">
         <div class="mark">弐</div>
         <h3>くつろぎの空間</h3>
-        <p>テーブル席のほか、30名様までのお座敷をご用意。小さなお子様連れからご年配の方まで、ゆっくりお過ごしいただけます。</p>
+        <p><span class="knk">テーブル席のほか、</span><span class="knk">30名様までの</span><span class="knk">お座敷をご用意。</span><span class="knk">お子様連れから</span><span class="knk">ご年配の方まで、</span><span class="knk">ゆっくりお過ごし</span><span class="knk">いただけます。</span></p>
       </div>
       <div class="kodawari-item">
         <div class="mark">参</div>
         <h3>地域とともに</h3>
-        <p>ご家族の節目の集まり、地域の宴会、お弁当の配達まで。南丹・園部の皆様の「いつもの店」であり続けます。</p>
+        <p><span class="knk">ご家族の集まり、</span><span class="knk">地域の宴会、</span><span class="knk">お弁当の配達まで。</span><span class="knk">南丹・園部の皆様の</span><span class="knk">「いつもの店」で</span><span class="knk">あり続けます。</span></p>
       </div>
     </div>
   </div>
@@ -292,14 +312,14 @@
         <div class="photo-frame">※ 法要会席の写真</div>
         <div class="body">
           <h3>ご法要・お祝いの席に</h3>
-          <p>ご法要会席・慶事料理を承ります。お座敷（30名様まで）で、ご親族おそろいでゆっくりとお過ごしいただけます。お料理の内容・ご予算はお気軽にご相談ください。</p>
+          <p><span class="knk">ご法要会席・慶事料理を</span><span class="knk">承ります。</span><span class="knk">お座敷（30名様まで）で、</span><span class="knk">ご親族おそろいで</span><span class="knk">ごゆっくりどうぞ。</span><span class="knk">お料理やご予算は</span><span class="knk">お気軽にご相談ください。</span></p>
         </div>
       </div>
       <div class="scene-card">
         <div class="photo-frame">※ 仕出し弁当の写真</div>
         <div class="body">
           <h3>仕出し・お弁当の配達</h3>
-          <p>ご会合・ご法事・行事に、手作りの仕出し弁当をお届けします。名物みそとんかつ弁当のお持ち帰りもどうぞ。</p>
+          <p><span class="knk">ご会合・ご法事・行事に、</span><span class="knk">手作りの仕出し弁当を</span><span class="knk">お届けします。</span><span class="knk">みそとんかつ弁当の</span><span class="knk">お持ち帰りもどうぞ。</span></p>
         </div>
       </div>
     </div>
@@ -314,12 +334,12 @@
     <div class="info-grid">
       <table>
         <tr><th>店名</th><td>レストランれいん房　本店</td></tr>
-        <tr><th>住所</th><td>〒629-0166<br>京都府南丹市八木町室河原中塚29</td></tr>
-        <tr><th>電話</th><td><a href="tel:0120552887">0120-55-2887</a>（フリーダイヤル）<br><a href="tel:0771422887">0771-42-2887</a></td></tr>
-        <tr><th>営業時間</th><td>昼　11:00〜15:00（L.O. 14:30）<br>夜　17:00〜21:00（L.O. 20:30）</td></tr>
+        <tr><th>住所</th><td><span class="knk">〒629-0166</span><br><span class="knk">京都府南丹市</span><span class="knk">八木町室河原中塚29</span></td></tr>
+        <tr><th>電話</th><td><span class="knk"><a href="tel:0120552887">0120-55-2887</a></span><span class="knk">（フリーダイヤル）</span><br><span class="knk"><a href="tel:0771422887">0771-42-2887</a></span></td></tr>
+        <tr><th>営業時間</th><td><span class="knk">昼　11:00〜15:00</span><span class="knk">（L.O. 14:30）</span><br><span class="knk">夜　17:00〜21:00</span><span class="knk">（L.O. 20:30）</span></td></tr>
         <tr><th>定休日</th><td>毎週火曜日</td></tr>
-        <tr><th>アクセス</th><td>JR嵯峨野線「園部駅」より徒歩約10分<br>駐車場完備</td></tr>
-        <tr><th>お支払い</th><td>クレジットカード・QRコード決済 可</td></tr>
+        <tr><th>アクセス</th><td><span class="knk">JR嵯峨野線「園部駅」</span><span class="knk">より徒歩約10分</span><br><span class="knk">駐車場完備</span></td></tr>
+        <tr><th>お支払い</th><td><span class="knk">クレジットカード・</span><span class="knk">QRコード決済 可</span></td></tr>
       </table>
       <div class="map-frame">
         <iframe src="https://maps.google.com/maps?q=%E3%82%8C%E3%81%84%E3%82%93%E6%88%BF%20%E5%8D%97%E4%B8%B9%E5%B8%82&z=15&output=embed" loading="lazy" title="れいん房 地図"></iframe>
@@ -331,17 +351,17 @@
 <!-- ===== ご予約 ===== -->
 <section class="reserve">
   <div class="inner">
-    <h2 class="sec-title" style="color:#fff;">ご予約・お問い合わせ</h2>
+    <h2 class="sec-title" style="color:#fff;"><span class="knk">ご予約・</span><span class="knk">お問い合わせ</span></h2>
     <p class="sec-title-en">— RESERVATION —</p>
     <p>ご予約はお電話にて承っております。</p>
     <p style="margin-top:24px;"><a class="tel-big" href="tel:0120552887">☎ 0120-55-2887</a></p>
-    <p class="free-dial">フリーダイヤル（通話無料）／ 0771-42-2887</p>
-    <p class="note">受付時間：営業時間内（毎週火曜日定休）<br>ご法要・ご宴会・仕出しのご相談もお気軽にどうぞ。</p>
+    <p class="free-dial"><span class="knk">フリーダイヤル（通話無料）</span><span class="knk">／ 0771-42-2887</span></p>
+    <p class="note"><span class="knk">受付時間：営業時間内</span><span class="knk">（毎週火曜日定休）</span><br><span class="knk">ご法要・ご宴会・仕出しの</span><span class="knk">ご相談もお気軽にどうぞ。</span></p>
   </div>
 </section>
 
 <footer>
-  <p>レストランれいん房　京都府南丹市八木町室河原中塚29</p>
+  <p><span class="knk">レストランれいん房</span>　<span class="knk">京都府南丹市</span><span class="knk">八木町室河原中塚29</span></p>
   <p style="margin-top:8px;">&copy; Restaurant Reinbou</p>
 </footer>
 
