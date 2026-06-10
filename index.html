@@ -1025,7 +1025,7 @@
 
     .ehon-section .section-label span { color: var(--soba); font-size: 13px; }
     .ehon-section .section-label::before { background: var(--soba); }
-    .ehon-section .section-ja { color: var(--ink); }
+    .ehon-section .section-ja { color: var(--ink); font-size: clamp(42px, 7.5vw, 68px); }
 
     .ehon-guide {
       display: flex;
@@ -1052,7 +1052,7 @@
     }
 
     .ehon-guide-text {
-      font-size: 20px;
+      font-size: 24px;
       color: #fff;
       letter-spacing: 0.12em;
       line-height: 1.8;
@@ -1069,7 +1069,7 @@
     }
 
     .ehon-lead {
-      font-size: 17px;
+      font-size: 32px;
       color: var(--stone);
       line-height: 2.4;
       letter-spacing: 0.1em;
@@ -1292,6 +1292,10 @@
 
       .section { padding: 80px 20px 96px; }
       .section-ja { font-size: 22px; letter-spacing: 0.3em; }
+
+      .ehon-section .section-ja { font-size: 32px; letter-spacing: 0.15em; }
+      .ehon-lead { font-size: 21px; letter-spacing: 0.05em; line-height: 2.1; }
+      .ehon-guide-text { font-size: 20px; }
 
       .concept { padding: 80px 20px; }
       .concept::after { font-size: 200px; }
