@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="キングオブキングス">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <title>キングオブキングス</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    html, body {
+      width:100%; height:100%;
+      overflow:hidden;
+      background:#0d0020;
+      font-family:'Hiragino Kaku Gothic Pro','MS Gothic','Courier New',monospace;
+      color:#e8c860;
+      user-select:none; -webkit-user-select:none;
+      touch-action:none;
+    }
+
+    #app {
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      padding-top:env(safe-area-inset-top);
+      padding-bottom:env(safe-area-inset-bottom);
+    }
+
+    /* ─── ヘッダー ─── */
+    #header {
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:6px 12px;
+      background:#0a0018;
+      border-bottom:1px solid #3a2060;
+    }
+    .side-stat {
+      text-align:center;
+      min-width:72px;
+    }
+    .side-stat .slabel { font-size:10px; color:#888; display:block; }
+    .side-stat .sval   { font-size:17px; font-weight:bold; display:block; }
+    #turn-box {
+      flex:1;
+      text-align:center;
+      font-size:13px;
+      font-weight:bold;
+      padding:4px 8px;
+      background:#1a0a00;
+      border:1px solid #6a4000;
+      border-radius:4px;
+      margin:0 8px;
+      color:#ffd700;
+      letter-spacing:1px;
+    }
+    #title-small {
+      display:none; /* 余裕があれば表示 */
+    }
+
+    /* ─── キャンバスエリア ─── */
+    #canvas-wrap {
+      flex:1 1 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:#0d0020;
+    }
+    canvas {
+      display:block;
+      image-rendering:pixelated;
+      image-rendering:crisp-edges;
+      touch-action:none;
+      border:2px solid #3a2060;
+    }
+
+    /* ─── 下部パネル ─── */
+    #bottom {
+      flex:0 0 auto;
+      background:#0a0018;
+      border-top:1px solid #3a2060;
+      padding:8px 12px;
+      min-height:90px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    #unit-panel {
+      font-size:12px;
+      color:#ffd080;
+      min-height:16px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .upstat {
+      background:#1a0a30;
+      border:1px solid #4a3070;
+      border-radius:3px;
+      padding:2px 8px;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .upstat.name { color:#ffd700; font-weight:bold; }
+    .upstat.hp   { color:#44ee44; }
+    .upstat.atk  { color:#ff8844; }
+    .upstat.def  { color:#44aaff; }
+    .upstat.mv   { color:#88eeaa; }
+    #msg {
+      font-size:13px;
+      color:#ff9040;
+      min-height:18px;
+    }
+    #btn-row {
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    #end-turn-btn {
+      flex:1;
+      padding:11px 0;
+      font-size:15px;
+      font-weight:bold;
+      background:linear-gradient(135deg,#3a1800,#5a2800);
+      color:#ffd080;
+      border:2px solid #8b6000;
+      border-radius:8px;
+      cursor:pointer;
+      font-family:inherit;
+      letter-spacing:2px;
+      display:none;
+    }
+    #end-turn-btn:active { background:#7a3800; }
+    #legend-btn {
+      padding:11px 14px;
+      font-size:13px;
+      background:#111030;
+      color:#8080cc;
+      border:1px solid #3a2060;
+      border-radius:8px;
+      cursor:pointer;
+      font-family:inherit;
+    }
+    #legend-btn:active { background:#1a1050; }
+
+    /* ─── 凡例オーバーレイ ─── */
+    #legend-overlay {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,20,0.92);
+      z-index:20;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      padding:20px;
+    }
+    #legend-overlay.show { display:flex; }
+    #legend-overlay h2 {
+      font-size:18px;
+      color:#ffd700;
+      margin-bottom:16px;
+      letter-spacing:2px;
+    }
+    .leg-table { width:100%; max-width:360px; border-collapse:collapse; font-size:13px; }
+    .leg-table th { color:#aaa; font-size:11px; padding:4px 6px; border-bottom:1px solid #3a2060; }
+    .leg-table td { padding:5px 6px; text-align:center; border-bottom:1px solid #2a1840; }
+    .leg-table tr:nth-child(even) td { background:#111028; }
+    .sym { font-size:16px; }
+    .p   { color:#6699ff; }
+    .e   { color:#ff6666; }
+    #legend-close {
+      margin-top:16px;
+      padding:10px 40px;
+      font-size:15px;
+      background:#2a1500;
+      color:#ffd080;
+      border:2px solid #6a4000;
+      border-radius:8px;
+      cursor:pointer;
+      font-family:inherit;
+    }
+
+    /* ─── ゲームオーバー ─── */
+    #game-over {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.90);
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:20px;
+      z-index:30;
+      padding-bottom:env(safe-area-inset-bottom);
+    }
+    #game-over.show { display:flex; }
+    #go-title {
+      font-size:clamp(28px,8vw,44px);
+      font-weight:bold;
+      color:#ffd700;
+      text-shadow:0 0 24px #ff8800;
+      letter-spacing:4px;
+    }
+    #go-sub { font-size:18px; color:#e8c860; }
+    #go-btn {
+      padding:14px 44px;
+      font-size:17px;
+      font-weight:bold;
+      background:linear-gradient(135deg,#8b3000,#c05000);
+      color:#ffd080;
+      border:2px solid #ffd080;
+      border-radius:10px;
+      cursor:pointer;
+      font-family:inherit;
+      letter-spacing:2px;
+    }
+    #go-btn:active { background:#8b3000; }
+
+    /* ─── フローティングダメージ ─── */
+    .float-dmg {
+      position:fixed;
+      pointer-events:none;
+      font-size:18px;
+      font-weight:bold;
+      color:#ff4444;
+      text-shadow:0 0 8px #ff0000, 1px 1px 0 #000;
+      z-index:40;
+      animation:floatUp 0.9s ease-out forwards;
+    }
+    @keyframes floatUp {
+      0%   { opacity:1; transform:translateY(0); }
+      100% { opacity:0; transform:translateY(-40px); }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ヘッダー -->
+  <div id="header">
+    <div class="side-stat">
+      <span class="slabel">▲ 敵 軍</span>
+      <span class="sval" id="enemy-count">-</span>
+    </div>
+    <div id="turn-box">プレイヤーのターン</div>
+    <div class="side-stat">
+      <span class="slabel">▼ 自 軍</span>
+      <span class="sval" id="player-count">-</span>
+    </div>
+  </div>
+
+  <!-- キャンバス -->
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+  </div>
+
+  <!-- 下部パネル -->
+  <div id="bottom">
+    <div id="unit-panel"><span style="color:#666;font-size:12px">ユニットをタップして選択</span></div>
+    <div id="msg">&nbsp;</div>
+    <div id="btn-row">
+      <button id="end-turn-btn" onclick="endPlayerTurn()">ターン終了 →</button>
+      <button id="legend-btn" onclick="showLegend()">？</button>
+    </div>
+  </div>
+</div>
+
+<!-- 凡例 -->
+<div id="legend-overlay">
+  <h2>♔ ユニット一覧</h2>
+  <table class="leg-table">
+    <tr><th>記号</th><th>名前</th><th>HP</th><th>ATK</th><th>DEF</th><th>移動</th><th>射程</th></tr>
+    <tr><td class="sym">♔</td><td>キング</td>    <td>5</td><td>3</td><td>2</td><td>1</td><td>1</td></tr>
+    <tr><td class="sym">⚔</td><td>パラディン</td><td>8</td><td>4</td><td>3</td><td>2</td><td>1</td></tr>
+    <tr><td class="sym">✦</td><td>ウィザード</td><td>3</td><td>6</td><td>1</td><td>1</td><td>3</td></tr>
+    <tr><td class="sym">▲</td><td>ジャイアント</td><td>14</td><td>7</td><td>4</td><td>1</td><td>1</td></tr>
+    <tr><td class="sym">↑</td><td>アーチャー</td><td>4</td><td>3</td><td>2</td><td>2</td><td>2</td></tr>
+    <tr><td class="sym">G</td><td>ゴブリン</td>  <td>3</td><td>2</td><td>1</td><td>3</td><td>1</td></tr>
+  </table>
+  <div style="margin-top:12px;font-size:12px;color:#888;text-align:center">
+    <span class="p">■ 青系 = 自軍</span> &nbsp; <span class="e">■ 赤系 = 敵軍</span><br>
+    青マス=移動可 / 赤マス=攻撃可<br>
+    ダメージ = ATK − DEF（最低1）
+  </div>
+  <button id="legend-close" onclick="hideLegend()">閉じる</button>
+</div>
+
+<!-- ゲームオーバー -->
+<div id="game-over">
+  <div id="go-title"></div>
+  <div id="go-sub"></div>
+  <button id="go-btn" onclick="startGame()">もう一度プレイ</button>
+</div>
+
+<script>
+// ─── Canvas & スケール ─────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const COLS = 8, ROWS = 8, CELL = 56;
+const BASE_W = COLS * CELL, BASE_H = ROWS * CELL;
+let scale = 1;
+let canvasRect = { left:0, top:0 };
+
+function resize() {
+  const wrap = document.getElementById('canvas-wrap');
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  scale = Math.min(w / BASE_W, h / BASE_H);
+  scale = Math.max(0.45, Math.min(scale, 2.0));
+  canvas.width  = Math.round(BASE_W * scale);
+  canvas.height = Math.round(BASE_H * scale);
+  canvasRect = canvas.getBoundingClientRect();
+  draw();
+}
+window.addEventListener('resize', () => { resize(); canvasRect = canvas.getBoundingClientRect(); });
+
+// ─── ユニット定義 ──────────────────────────────────────────
+const DEF = {
+  king:    { name:'キング',      hp:5,  atk:3, def:2, move:1, range:1, sym:'♔', pc:'#00DDFF', ec:'#FF2222' },
+  paladin: { name:'パラディン',  hp:8,  atk:4, def:3, move:2, range:1, sym:'⚔', pc:'#4499FF', ec:'#FF6600' },
+  wizard:  { name:'ウィザード',  hp:3,  atk:6, def:1, move:1, range:3, sym:'✦', pc:'#BB44FF', ec:'#FF33BB' },
+  giant:   { name:'ジャイアント',hp:14, atk:7, def:4, move:1, range:1, sym:'▲', pc:'#3399CC', ec:'#DD2222' },
+  archer:  { name:'アーチャー',  hp:4,  atk:3, def:2, move:2, range:2, sym:'↑', pc:'#00FFCC', ec:'#FFAA00' },
+  goblin:  { name:'ゴブリン',    hp:3,  atk:2, def:1, move:3, range:1, sym:'G', pc:'#55AAFF', ec:'#FF7722' },
+};
+
+// ─── 状態 ─────────────────────────────────────────────────
+let units=[], selected=null, hasMoved=false;
+let moveTargets=[], atkTargets=[];
+let phase='player'; // 'player'|'ai'|'over'
+let animFrame=0;
+
+// ─── アニメーションループ ──────────────────────────────────
+function loop() {
+  animFrame++;
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ─── 初期化 ───────────────────────────────────────────────
+function mk(type,owner,x,y) {
+  const d=DEF[type];
+  return {type,owner,x,y,hp:d.hp,maxHp:d.hp,atk:d.atk,def:d.def,move:d.move,range:d.range,done:false,moved:false};
+}
+
+function startGame() {
+  document.getElementById('game-over').classList.remove('show');
+  selected=null; hasMoved=false; moveTargets=[]; atkTargets=[];
+  phase='player';
+  const E='enemy', P='player';
+  units=[
+    mk('goblin', E,0,0),mk('archer', E,1,0),mk('paladin',E,2,0),
+    mk('king',   E,3,0),mk('wizard', E,4,0),mk('paladin',E,5,0),
+    mk('archer', E,6,0),mk('goblin', E,7,0),
+    mk('giant',  E,1,1),mk('goblin', E,3,1),
+    mk('goblin', E,4,1),mk('giant',  E,6,1),
+
+    mk('goblin', P,0,7),mk('archer', P,1,7),mk('paladin',P,2,7),
+    mk('king',   P,3,7),mk('wizard', P,4,7),mk('paladin',P,5,7),
+    mk('archer', P,6,7),mk('goblin', P,7,7),
+    mk('giant',  P,1,6),mk('goblin', P,3,6),
+    mk('goblin', P,4,6),mk('giant',  P,6,6),
+  ];
+  document.getElementById('end-turn-btn').style.display='block';
+  document.getElementById('turn-box').textContent='プレイヤーのターン';
+  setMsg('ユニットをタップして選択してください');
+  clearPanel();
+  updateUI();
+}
+
+// ─── ユーティリティ ────────────────────────────────────────
+function unitAt(x,y){ return units.find(u=>u.x===x&&u.y===y); }
+function dist(a,b)  { return Math.abs(a.x-b.x)+Math.abs(a.y-b.y); }
+
+function getMoves(u) {
+  if(u.done) return [];
+  const vis=new Set([`${u.x},${u.y}`]);
+  const q=[{x:u.x,y:u.y,s:0}], res=[];
+  while(q.length){
+    const{x,y,s}=q.shift();
+    if(s>0) res.push({x,y});
+    if(s>=u.move) continue;
+    for(const[dx,dy]of[[-1,0],[1,0],[0,-1],[0,1]]){
+      const nx=x+dx,ny=y+dy,k=`${nx},${ny}`;
+      if(nx<0||nx>=COLS||ny<0||ny>=ROWS||vis.has(k)||unitAt(nx,ny)) continue;
+      vis.add(k); q.push({x:nx,y:ny,s:s+1});
+    }
+  }
+  return res;
+}
+function getAtk(u,fx,fy){
+  const x=fx??u.x, y=fy??u.y;
+  return units.filter(e=>e.owner!==u.owner && dist({x,y},e)<=u.range);
+}
+
+// ─── 戦闘 ────────────────────────────────────────────────
+function doAttack(att,def){
+  const dmg=Math.max(1,att.atk-def.def);
+  def.hp-=dmg;
+  const dn=DEF[def.type].name, an=DEF[att.type].name;
+  // バイブレーション
+  if(navigator.vibrate) navigator.vibrate(40);
+  // フローティングダメージ
+  showFloatDmg(def.x, def.y, `-${dmg}`);
+  if(def.hp<=0){
+    units=units.filter(u=>u!==def);
+    setMsg(`${an} が ${dn} を倒した！`);
+    if(navigator.vibrate) navigator.vibrate([30,20,80]);
+  } else {
+    setMsg(`${an} → ${dn} に ${dmg} ダメージ！（残HP:${def.hp}）`);
+  }
+}
+
+function showFloatDmg(gx, gy, text) {
+  const rect = canvas.getBoundingClientRect();
+  const cx = rect.left + (gx+0.5)*CELL*scale;
+  const cy = rect.top  + (gy+0.3)*CELL*scale;
+  const el = document.createElement('div');
+  el.className='float-dmg';
+  el.textContent=text;
+  el.style.left=cx+'px';
+  el.style.top=cy+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 900);
+}
+
+function checkWin(){
+  const pk=units.find(u=>u.owner==='player'&&u.type==='king');
+  const ek=units.find(u=>u.owner==='enemy' &&u.type==='king');
+  if(!ek){ endGame('VICTORY!','プレイヤーの勝利！'); return true; }
+  if(!pk){ endGame('GAME OVER','敵軍の勝利...'); return true; }
+  return false;
+}
+function endGame(title,sub){
+  phase='over';
+  document.getElementById('end-turn-btn').style.display='none';
+  document.getElementById('go-title').textContent=title;
+  document.getElementById('go-sub').textContent=sub;
+  document.getElementById('game-over').classList.add('show');
+}
+
+// ─── プレイヤー操作 ──────────────────────────────────────
+function endPlayerTurn(){
+  if(phase!=='player') return;
+  selected=null; hasMoved=false; moveTargets=[]; atkTargets=[];
+  phase='ai';
+  document.getElementById('turn-box').textContent='敵のターン';
+  document.getElementById('end-turn-btn').style.display='none';
+  clearPanel();
+  setMsg('敵が行動中...');
+  updateUI();
+  setTimeout(runAI, 500);
+}
+
+function handleClick(x,y){
+  if(phase!=='player') return;
+
+  // 移動先クリック
+  if(selected&&!hasMoved&&moveTargets.some(m=>m.x===x&&m.y===y)){
+    selected.x=x; selected.y=y; hasMoved=true; selected.moved=true;
+    moveTargets=[];
+    atkTargets=getAtk(selected);
+    showInfo(selected);
+    setMsg(atkTargets.length ? '攻撃先（赤）を選ぶか「ターン終了」' : '攻撃対象なし。「ターン終了」へ');
+    return;
+  }
+
+  // 攻撃先クリック
+  if(selected&&atkTargets.some(t=>t.x===x&&t.y===y)){
+    const tgt=unitAt(x,y);
+    if(tgt){
+      doAttack(selected,tgt);
+      selected.done=true;
+      selected=null; hasMoved=false; moveTargets=[]; atkTargets=[];
+      if(checkWin()) return;
+      if(units.filter(u=>u.owner==='player'&&!u.done).length===0)
+        setTimeout(endPlayerTurn,400);
+      updateUI(); return;
+    }
+  }
+
+  // 行動済み選択ユニットを別ユニット選択で切替
+  const u=unitAt(x,y);
+  if(u&&u.owner==='player'&&!u.done){
+    selected=u; hasMoved=u.moved;
+    moveTargets=u.moved?[]:getMoves(u);
+    atkTargets=getAtk(u);
+    showInfo(u);
+    setMsg('移動先（青）または攻撃先（赤）をタップ');
+  } else if(!u || u.owner==='enemy') {
+    // 攻撃可能な選択済みユニットがあり、かつ空マスor敵以外をタップ → 解除
+    if(selected && !atkTargets.some(t=>t.x===x&&t.y===y)){
+      selected=null; hasMoved=false; moveTargets=[]; atkTargets=[];
+      clearPanel(); setMsg(' ');
+    }
+  }
+}
+
+// ─── AI ──────────────────────────────────────────────────
+function runAI(){
+  if(phase!=='ai') return;
+  const enemies=units.filter(u=>u.owner==='enemy'&&!u.done);
+  if(!enemies.length){
+    units.forEach(u=>{u.done=false; u.moved=false;});
+    phase='player';
+    document.getElementById('turn-box').textContent='プレイヤーのターン';
+    document.getElementById('end-turn-btn').style.display='block';
+    setMsg('プレイヤーのターンです');
+    updateUI(); return;
+  }
+  aiMove(enemies[0]);
+  enemies[0].done=true;
+  if(checkWin()) return;
+  updateUI();
+  setTimeout(runAI, 260);
+}
+
+function aiMove(u){
+  let tgts=getAtk(u);
+  if(tgts.length){ doAttack(u,tgts.sort((a,b)=>a.hp-b.hp)[0]); return; }
+  const moves=getMoves(u);
+  if(!moves.length) return;
+  const pk=units.find(p=>p.owner==='player'&&p.type==='king');
+  let best=null, bestScore=-Infinity;
+  for(const mv of moves){
+    const atkAfter=getAtk(u,mv.x,mv.y);
+    let score=0;
+    if(atkAfter.length){
+      score+=500+atkAfter.reduce((s,t)=>s+Math.max(1,u.atk-t.def),0)*10;
+      if(atkAfter.some(t=>t.type==='king')) score+=2000;
+    }
+    if(pk) score-=dist(mv,pk)*3;
+    const pUnits=units.filter(p=>p.owner==='player');
+    if(pUnits.length) score-=Math.min(...pUnits.map(p=>dist(mv,p)));
+    if(score>bestScore){ bestScore=score; best=mv; }
+  }
+  if(best){
+    u.x=best.x; u.y=best.y;
+    tgts=getAtk(u);
+    if(tgts.length) doAttack(u,tgts.sort((a,b)=>a.hp-b.hp)[0]);
+  }
+}
+
+// ─── UI ──────────────────────────────────────────────────
+function showInfo(u){
+  const d=DEF[u.type];
+  const p=document.getElementById('unit-panel');
+  p.innerHTML=`
+    <span class="upstat name">${d.sym} ${d.name}</span>
+    <span class="upstat hp">HP ${u.hp}/${u.maxHp}</span>
+    <span class="upstat atk">ATK ${u.atk}</span>
+    <span class="upstat def">DEF ${u.def}</span>
+    <span class="upstat mv">移動${u.move}</span>
+    <span class="upstat mv">射程${u.range}</span>
+  `;
+}
+function clearPanel(){
+  document.getElementById('unit-panel').innerHTML='<span style="color:#666;font-size:12px">ユニットをタップして選択</span>';
+}
+function setMsg(t){ document.getElementById('msg').textContent=t; }
+function updateUI(){
+  document.getElementById('player-count').textContent=`${units.filter(u=>u.owner==='player').length}体`;
+  document.getElementById('enemy-count').textContent= `${units.filter(u=>u.owner==='enemy').length}体`;
+}
+
+// ─── 凡例 ────────────────────────────────────────────────
+function showLegend(){ document.getElementById('legend-overlay').classList.add('show'); }
+function hideLegend(){ document.getElementById('legend-overlay').classList.remove('show'); }
+
+// ─── 描画 ────────────────────────────────────────────────
+function draw(){
+  ctx.setTransform(scale,0,0,scale,0,0);
+  ctx.clearRect(0,0,BASE_W,BASE_H);
+
+  // チェス盤
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+    ctx.fillStyle=(x+y)%2===0?'#14082a':'#1e1042';
+    ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+  }
+  // グリッド線
+  ctx.strokeStyle='#3a2870'; ctx.lineWidth=0.8;
+  for(let x=0;x<=COLS;x++){
+    ctx.beginPath();ctx.moveTo(x*CELL,0);ctx.lineTo(x*CELL,BASE_H);ctx.stroke();
+  }
+  for(let y=0;y<=ROWS;y++){
+    ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(BASE_W,y*CELL);ctx.stroke();
+  }
+
+  // 移動ハイライト（パルス）
+  const pulse=(Math.sin(animFrame*0.12)+1)/2;
+  ctx.fillStyle=`rgba(50,130,255,${0.20+pulse*0.15})`;
+  for(const m of moveTargets) ctx.fillRect(m.x*CELL+2,m.y*CELL+2,CELL-4,CELL-4);
+
+  // 攻撃ハイライト（パルス逆位相）
+  ctx.fillStyle=`rgba(255,50,50,${0.25+pulse*0.15})`;
+  for(const t of atkTargets) ctx.fillRect(t.x*CELL+2,t.y*CELL+2,CELL-4,CELL-4);
+
+  // 選択枠（点滅）
+  if(selected){
+    ctx.strokeStyle=`rgba(255,215,0,${0.6+pulse*0.4})`;
+    ctx.lineWidth=3;
+    ctx.strokeRect(selected.x*CELL+3,selected.y*CELL+3,CELL-6,CELL-6);
+  }
+
+  // 行動可能ユニットの輝き
+  if(phase==='player'){
+    for(const u of units.filter(v=>v.owner==='player'&&!v.done&&v!==selected)){
+      const glow=ctx.createRadialGradient(
+        u.x*CELL+CELL/2,u.y*CELL+CELL/2,0,
+        u.x*CELL+CELL/2,u.y*CELL+CELL/2,CELL*0.48
+      );
+      const a=0.08+pulse*0.08;
+      glow.addColorStop(0,`rgba(255,220,100,${a})`);
+      glow.addColorStop(1,'rgba(255,220,100,0)');
+      ctx.fillStyle=glow;
+      ctx.fillRect(u.x*CELL,u.y*CELL,CELL,CELL);
+    }
+  }
+
+  for(const u of units) drawUnit(u);
+}
+
+// ─── キャラクター個別描画 ──────────────────────────────────
+function drawKing(cx, cy, r, col, bg) {
+  // ローブ（台形）
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.moveTo(cx-r*0.65, cy+r); ctx.lineTo(cx-r*0.3, cy);
+  ctx.lineTo(cx+r*0.3, cy); ctx.lineTo(cx+r*0.65, cy+r);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  // 王冠ベース
+  ctx.fillStyle=col;
+  ctx.fillRect(cx-r*0.52, cy-r*0.84, r*1.04, r*0.18);
+  // 王冠3点
+  [[cx-r*0.38,cy-r*1.28],[cx,cy-r*1.44],[cx+r*0.38,cy-r*1.28]].forEach(([px,py])=>{
+    ctx.beginPath(); ctx.moveTo(px,py);
+    ctx.lineTo(px-r*0.17,cy-r*0.84); ctx.lineTo(px+r*0.17,cy-r*0.84);
+    ctx.closePath(); ctx.fill();
+  });
+  // 宝石
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(cx, cy-r*1.44, r*0.07, 0, Math.PI*2); ctx.fill();
+  // 顔
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.38, r*0.3, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(cx-r*0.1, cy-r*0.42, r*0.06, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.1, cy-r*0.42, r*0.06, 0, Math.PI*2); ctx.fill();
+}
+
+function drawPaladin(cx, cy, r, col, bg) {
+  // 鎧ボディ
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-r*0.52, cy, r*1.04, r);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.strokeRect(cx-r*0.52, cy, r*1.04, r);
+  // 十字紋
+  ctx.fillStyle=col;
+  ctx.fillRect(cx-r*0.09, cy+r*0.15, r*0.18, r*0.65);
+  ctx.fillRect(cx-r*0.33, cy+r*0.38, r*0.66, r*0.18);
+  // 肩パッド
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(cx-r*0.52,cy+r*0.15,r*0.22,Math.PI*0.5,Math.PI*1.5); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.52,cy+r*0.15,r*0.22,-Math.PI*0.5,Math.PI*0.5); ctx.fill();
+  // ヘルメット
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.arc(cx, cy-r*0.52, r*0.42, Math.PI, 0);
+  ctx.lineTo(cx+r*0.42, cy-r*0.08); ctx.lineTo(cx-r*0.42, cy-r*0.08);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.fillRect(cx-r*0.34, cy-r*0.54, r*0.68, r*0.1);
+  ctx.fillRect(cx-r*0.07, cy-r*0.9, r*0.14, r*0.48);
+}
+
+function drawWizard(cx, cy, r, col, bg) {
+  // ローブ
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.moveTo(cx-r*0.65,cy+r); ctx.lineTo(cx-r*0.28,cy-r*0.02);
+  ctx.lineTo(cx+r*0.28,cy-r*0.02); ctx.lineTo(cx+r*0.65,cy+r);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle=col+'cc';
+  ctx.font=`${Math.floor(r*0.52)}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('✦', cx, cy+r*0.5);
+  // 顔
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.28, r*0.3, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  // 帽子つば
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-r*0.62, cy-r*0.55, r*1.24, r*0.17);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.strokeRect(cx-r*0.62, cy-r*0.55, r*1.24, r*0.17);
+  // 帽子（背景より先に描画、後で線）
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy-r*1.52);
+  ctx.lineTo(cx-r*0.5, cy-r*0.55); ctx.lineTo(cx+r*0.5, cy-r*0.55);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.font=`${Math.floor(r*0.4)}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('★', cx, cy-r*1.0);
+}
+
+function drawGiant(cx, cy, r, col, bg) {
+  const R=r*1.22;
+  // 足
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-R*0.52, cy+R*0.55, R*0.4, R*0.42);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.strokeRect(cx-R*0.52, cy+R*0.55, R*0.4, R*0.42);
+  ctx.fillRect(cx+R*0.12, cy+R*0.55, R*0.4, R*0.42);
+  ctx.strokeRect(cx+R*0.12, cy+R*0.55, R*0.4, R*0.42);
+  // 巨体
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy+R*0.18, R*0.72, R*0.6, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.stroke();
+  // 腕
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-R*0.88, cy+r*0.05, R*0.34, R*0.52);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.strokeRect(cx-R*0.88, cy+r*0.05, R*0.34, R*0.52);
+  ctx.fillRect(cx+R*0.54, cy+r*0.05, R*0.34, R*0.52);
+  ctx.strokeRect(cx+R*0.54, cy+r*0.05, R*0.34, R*0.52);
+  // 頭（小）
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.5, r*0.38, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+  // 怒り目
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(cx-r*0.13, cy-r*0.54, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.13, cy-r*0.54, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.26, r*0.15, Math.PI*1.1, Math.PI*1.9); ctx.stroke();
+}
+
+function drawArcher(cx, cy, r, col, bg) {
+  // 足
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-r*0.28, cy+r*0.58, r*0.22, r*0.48);
+  ctx.strokeStyle=col; ctx.lineWidth=1;
+  ctx.strokeRect(cx-r*0.28, cy+r*0.58, r*0.22, r*0.48);
+  ctx.fillRect(cx+r*0.06, cy+r*0.58, r*0.22, r*0.48);
+  ctx.strokeRect(cx+r*0.06, cy+r*0.58, r*0.22, r*0.48);
+  // スリムボディ
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-r*0.28, cy-r*0.05, r*0.56, r*0.65);
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.strokeRect(cx-r*0.28, cy-r*0.05, r*0.56, r*0.65);
+  // 矢筒
+  ctx.fillStyle=bg;
+  ctx.fillRect(cx-r*0.55, cy-r*0.05, r*0.2, r*0.44);
+  ctx.strokeStyle=col; ctx.lineWidth=1;
+  ctx.strokeRect(cx-r*0.55, cy-r*0.05, r*0.2, r*0.44);
+  ctx.fillStyle=col;
+  for(let i=0;i<3;i++) ctx.fillRect(cx-r*0.51+i*r*0.07, cy-r*0.12, r*0.04, r*0.1);
+  // 顔
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.38, r*0.3, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+  // 弓（右側の弧）
+  const bx=cx+r*0.22, by=cy+r*0.28, br=r*0.72;
+  ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.arc(bx, by, br, -Math.PI*0.62, Math.PI*0.62); ctx.stroke();
+  const a=Math.PI*0.62;
+  const sx1=bx+br*Math.cos(-a), sy1=by+br*Math.sin(-a);
+  const sx2=bx+br*Math.cos(a),  sy2=by+br*Math.sin(a);
+  ctx.strokeStyle=col+'88'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+  // 矢
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx-r*0.15,by); ctx.lineTo(sx2-r*0.05,by); ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.moveTo(sx2,by); ctx.lineTo(sx2-r*0.14,by-r*0.08); ctx.lineTo(sx2-r*0.14,by+r*0.08); ctx.closePath(); ctx.fill();
+}
+
+function drawGoblin(cx, cy, r, col, bg) {
+  // ボディ
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy+r*0.48, r*0.48, r*0.52, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  // 腕（細い線）
+  ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(cx-r*0.45,cy+r*0.22); ctx.lineTo(cx-r*0.82,cy+r*0.65); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+r*0.45,cy+r*0.22); ctx.lineTo(cx+r*0.82,cy+r*0.65); ctx.stroke();
+  // 耳（左）
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.moveTo(cx-r*0.6, cy-r*0.6); ctx.lineTo(cx-r*0.28,cy-r*0.18); ctx.lineTo(cx-r*0.1,cy-r*0.42);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  // 耳（右）
+  ctx.fillStyle=bg;
+  ctx.beginPath();
+  ctx.moveTo(cx+r*0.6, cy-r*0.6); ctx.lineTo(cx+r*0.28,cy-r*0.18); ctx.lineTo(cx+r*0.1,cy-r*0.42);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  // 頭
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.3, r*0.37, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+  // 大きな目
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(cx-r*0.14, cy-r*0.35, r*0.11, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.14, cy-r*0.35, r*0.11, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.arc(cx-r*0.11, cy-r*0.38, r*0.04, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.17, cy-r*0.38, r*0.04, 0, Math.PI*2); ctx.fill();
+  // 牙
+  ctx.fillStyle=col;
+  ctx.fillRect(cx-r*0.05, cy-r*0.15, r*0.1, r*0.13);
+}
+
+function drawUnit(u) {
+  const d=DEF[u.type];
+  const cx=u.x*CELL+CELL/2;
+  const cy=u.y*CELL+CELL/2-3;
+  const r=CELL*0.30;
+  const col=u.owner==='player'?d.pc:d.ec;
+  const bg=u.owner==='player'?'#001040':'#2a0000';
+  ctx.globalAlpha=u.done?0.38:1.0;
+
+  // 影
+  ctx.fillStyle='rgba(0,0,0,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(cx+1, u.y*CELL+CELL-14, r*0.85, r*0.28, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  switch(u.type) {
+    case 'king':    drawKing(cx,cy,r,col,bg);    break;
+    case 'paladin': drawPaladin(cx,cy,r,col,bg); break;
+    case 'wizard':  drawWizard(cx,cy,r,col,bg);  break;
+    case 'giant':   drawGiant(cx,cy,r,col,bg);   break;
+    case 'archer':  drawArcher(cx,cy,r,col,bg);  break;
+    case 'goblin':  drawGoblin(cx,cy,r,col,bg);  break;
+  }
+
+  // HPバー
+  const bw=CELL-10, bh=5;
+  const bx=u.x*CELL+5, by=u.y*CELL+CELL-9;
+  ctx.fillStyle='#1a1a1a';
+  ctx.fillRect(bx,by,bw,bh);
+  const ratio=u.hp/u.maxHp;
+  ctx.fillStyle=ratio>0.55?'#33dd33':ratio>0.25?'#ddbb11':'#dd2222';
+  ctx.fillRect(bx,by,Math.round(bw*ratio),bh);
+
+  ctx.globalAlpha=1.0;
+}
+
+// ─── タッチ・クリックイベント ─────────────────────────────
+function getCell(clientX,clientY){
+  canvasRect=canvas.getBoundingClientRect();
+  const x=Math.floor((clientX-canvasRect.left)/scale/CELL);
+  const y=Math.floor((clientY-canvasRect.top) /scale/CELL);
+  return(x>=0&&x<COLS&&y>=0&&y<ROWS)?{x,y}:null;
+}
+
+let touchStartX=0, touchStartY=0;
+canvas.addEventListener('touchstart',e=>{
+  touchStartX=e.touches[0].clientX;
+  touchStartY=e.touches[0].clientY;
+},{passive:true});
+canvas.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const t=e.changedTouches[0];
+  // スワイプ距離が小さい場合のみタップとみなす
+  if(Math.abs(t.clientX-touchStartX)<10 && Math.abs(t.clientY-touchStartY)<10){
+    const c=getCell(t.clientX,t.clientY);
+    if(c) handleClick(c.x,c.y);
+  }
+},{passive:false});
+canvas.addEventListener('click',e=>{
+  const c=getCell(e.clientX,e.clientY);
+  if(c) handleClick(c.x,c.y);
+});
+
+// ─── Service Worker登録 ──────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// ─── 起動 ────────────────────────────────────────────────
+startGame();
+resize();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
