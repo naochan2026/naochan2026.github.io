@@ -8,8 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="キングオブキングス">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <title>キングオブキングス</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
@@ -21,6 +22,8 @@
       color:#e8c860;
       user-select:none; -webkit-user-select:none;
       touch-action:none;
+      overscroll-behavior:none;
+      -webkit-overflow-scrolling:auto;
     }
 
     #app {
@@ -37,31 +40,29 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:6px 12px;
+      padding:4px 10px;
       background:#0a0018;
       border-bottom:1px solid #3a2060;
+      min-height:44px;
     }
     .side-stat {
       text-align:center;
-      min-width:72px;
+      min-width:64px;
     }
-    .side-stat .slabel { font-size:10px; color:#888; display:block; }
-    .side-stat .sval   { font-size:17px; font-weight:bold; display:block; }
+    .side-stat .slabel { font-size:9px; color:#888; display:block; letter-spacing:1px; }
+    .side-stat .sval   { font-size:16px; font-weight:bold; display:block; }
     #turn-box {
       flex:1;
       text-align:center;
-      font-size:13px;
+      font-size:12px;
       font-weight:bold;
-      padding:4px 8px;
+      padding:4px 6px;
       background:#1a0a00;
       border:1px solid #6a4000;
       border-radius:4px;
-      margin:0 8px;
+      margin:0 6px;
       color:#ffd700;
       letter-spacing:1px;
-    }
-    #title-small {
-      display:none; /* 余裕があれば表示 */
     }
 
     /* ─── キャンバスエリア ─── */
@@ -72,6 +73,7 @@
       justify-content:center;
       overflow:hidden;
       background:#0d0020;
+      min-height:0;
     }
     canvas {
       display:block;
@@ -79,6 +81,8 @@
       image-rendering:crisp-edges;
       touch-action:none;
       border:2px solid #3a2060;
+      max-width:100%;
+      max-height:100%;
     }
 
     /* ─── 下部パネル ─── */
@@ -86,27 +90,31 @@
       flex:0 0 auto;
       background:#0a0018;
       border-top:1px solid #3a2060;
-      padding:8px 12px;
-      min-height:90px;
+      padding:5px 10px 5px;
       display:flex;
       flex-direction:column;
-      gap:4px;
+      gap:3px;
     }
     #unit-panel {
-      font-size:12px;
+      font-size:11px;
       color:#ffd080;
-      min-height:16px;
+      min-height:14px;
       display:flex;
-      flex-wrap:wrap;
-      gap:6px;
+      flex-wrap:nowrap;
+      gap:4px;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
     }
+    #unit-panel::-webkit-scrollbar { display:none; }
     .upstat {
       background:#1a0a30;
       border:1px solid #4a3070;
       border-radius:3px;
-      padding:2px 8px;
-      font-size:12px;
+      padding:2px 6px;
+      font-size:11px;
       white-space:nowrap;
+      flex-shrink:0;
     }
     .upstat.name { color:#ffd700; font-weight:bold; }
     .upstat.hp   { color:#44ee44; }
@@ -114,18 +122,21 @@
     .upstat.def  { color:#44aaff; }
     .upstat.mv   { color:#88eeaa; }
     #msg {
-      font-size:13px;
+      font-size:12px;
       color:#ff9040;
-      min-height:18px;
+      min-height:16px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     #btn-row {
       display:flex;
-      gap:8px;
+      gap:6px;
       align-items:center;
     }
     #end-turn-btn {
       flex:1;
-      padding:11px 0;
+      padding:12px 0;
       font-size:15px;
       font-weight:bold;
       background:linear-gradient(135deg,#3a1800,#5a2800);
@@ -136,10 +147,11 @@
       font-family:inherit;
       letter-spacing:2px;
       display:none;
+      min-height:44px;
     }
     #end-turn-btn:active { background:#7a3800; }
     #legend-btn {
-      padding:11px 14px;
+      padding:12px 14px;
       font-size:13px;
       background:#111030;
       color:#8080cc;
@@ -147,45 +159,234 @@
       border-radius:8px;
       cursor:pointer;
       font-family:inherit;
+      min-height:44px;
+      min-width:44px;
     }
     #legend-btn:active { background:#1a1050; }
+    #qr-btn {
+      padding:12px 14px;
+      font-size:13px;
+      background:#111030;
+      color:#8080cc;
+      border:1px solid #3a2060;
+      border-radius:8px;
+      cursor:pointer;
+      font-family:inherit;
+      min-height:44px;
+      min-width:44px;
+    }
+    #qr-btn:active { background:#1a1050; }
 
-    /* ─── 凡例オーバーレイ ─── */
+    /* ─── 説明書オーバーレイ ─── */
     #legend-overlay {
       display:none;
       position:fixed;
       inset:0;
-      background:rgba(0,0,20,0.92);
+      background:rgba(0,0,16,0.96);
       z-index:20;
-      align-items:center;
-      justify-content:center;
       flex-direction:column;
-      padding:20px;
+      align-items:center;
+      overflow-y:auto;
+      padding:16px 16px 32px;
+      gap:0;
     }
     #legend-overlay.show { display:flex; }
-    #legend-overlay h2 {
-      font-size:18px;
+    .help-title {
+      font-size:20px;
       color:#ffd700;
-      margin-bottom:16px;
-      letter-spacing:2px;
+      letter-spacing:3px;
+      text-align:center;
+      margin:8px 0 14px;
+      text-shadow:0 0 12px #ff8800;
     }
-    .leg-table { width:100%; max-width:360px; border-collapse:collapse; font-size:13px; }
-    .leg-table th { color:#aaa; font-size:11px; padding:4px 6px; border-bottom:1px solid #3a2060; }
-    .leg-table td { padding:5px 6px; text-align:center; border-bottom:1px solid #2a1840; }
-    .leg-table tr:nth-child(even) td { background:#111028; }
-    .sym { font-size:16px; }
+    .help-section {
+      width:100%; max-width:400px;
+      margin-bottom:14px;
+    }
+    .help-section h3 {
+      font-size:13px;
+      color:#ffd700;
+      border-bottom:1px solid #4a3000;
+      padding-bottom:4px;
+      margin-bottom:8px;
+      letter-spacing:1px;
+    }
+    .help-steps {
+      list-style:none;
+      font-size:12px;
+      color:#ddcc88;
+      line-height:1.9;
+    }
+    .help-steps li::before { content:'▶ '; color:#ff9040; }
+    .help-row {
+      display:flex;
+      gap:8px;
+      margin-bottom:6px;
+      font-size:12px;
+    }
+    .help-badge {
+      background:#1a0a30;
+      border:1px solid #4a3070;
+      border-radius:4px;
+      padding:2px 8px;
+      white-space:nowrap;
+      font-size:11px;
+    }
+    .hb-blue  { border-color:#2244aa; color:#88aaff; }
+    .hb-red   { border-color:#aa2222; color:#ff8888; }
+    .hb-gold  { border-color:#886600; color:#ffd700; }
+    .hb-green { border-color:#226622; color:#88ee88; }
+    .leg-table {
+      width:100%; max-width:400px;
+      border-collapse:collapse;
+      font-size:11px;
+    }
+    .leg-table th {
+      color:#999;
+      font-size:10px;
+      padding:3px 4px;
+      border-bottom:1px solid #3a2060;
+      text-align:center;
+    }
+    .leg-table td {
+      padding:4px 4px;
+      text-align:center;
+      border-bottom:1px solid #1a1030;
+      color:#ccbbee;
+    }
+    .leg-table tr:nth-child(even) td { background:#0e0820; }
+    .leg-table td:nth-child(2) { text-align:left; color:#ffd080; font-size:12px; }
+    .sym { font-size:15px; }
     .p   { color:#6699ff; }
     .e   { color:#ff6666; }
     #legend-close {
-      margin-top:16px;
-      padding:10px 40px;
+      margin-top:8px;
+      padding:12px 48px;
       font-size:15px;
-      background:#2a1500;
+      font-weight:bold;
+      background:linear-gradient(135deg,#2a1500,#4a2800);
       color:#ffd080;
-      border:2px solid #6a4000;
-      border-radius:8px;
+      border:2px solid #8b6000;
+      border-radius:10px;
       cursor:pointer;
       font-family:inherit;
+      letter-spacing:2px;
+    }
+    #legend-close:active { background:#3a2000; }
+    #legend-print {
+      margin-top:8px;
+      margin-left:10px;
+      padding:12px 28px;
+      font-size:15px;
+      font-weight:bold;
+      background:linear-gradient(135deg,#0a2000,#1a4000);
+      color:#88ee44;
+      border:2px solid #336600;
+      border-radius:10px;
+      cursor:pointer;
+      font-family:inherit;
+      letter-spacing:2px;
+    }
+    #legend-print:active { background:#0a1800; }
+
+    /* ─── 印刷スタイル（A4） ─── */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 15mm 18mm 15mm 18mm;
+      }
+      body * { visibility:hidden; }
+      #legend-overlay, #legend-overlay * { visibility:visible; }
+      #legend-overlay {
+        display:block !important;
+        position:fixed !important;
+        inset:0 !important;
+        background:#fff !important;
+        color:#000 !important;
+        padding:0 !important;
+        overflow:visible !important;
+        font-family:'Hiragino Kaku Gothic Pro','Meiryo','sans-serif';
+      }
+      /* タイトル */
+      .help-title {
+        text-align:center !important;
+        color:#000 !important;
+        text-shadow:none !important;
+        font-size:22pt !important;
+        font-weight:bold !important;
+        letter-spacing:4px !important;
+        border-bottom:3px double #000 !important;
+        padding-bottom:6pt !important;
+        margin-bottom:10pt !important;
+      }
+      /* セクション */
+      .help-section {
+        width:100% !important;
+        max-width:100% !important;
+        margin-bottom:8pt !important;
+        page-break-inside:avoid;
+      }
+      .help-section h3 {
+        font-size:12pt !important;
+        color:#000 !important;
+        border:none !important;
+        border-left:4px solid #000 !important;
+        padding:1pt 0 1pt 6pt !important;
+        margin-bottom:4pt !important;
+        background:#eee !important;
+        letter-spacing:1px !important;
+      }
+      .help-steps {
+        color:#000 !important;
+        font-size:10pt !important;
+        line-height:1.8 !important;
+        margin-left:8pt !important;
+      }
+      .help-steps li::before { color:#000 !important; }
+      /* カラーバッジ */
+      .help-row { margin-bottom:3pt !important; font-size:10pt !important; }
+      .help-badge {
+        background:#eee !important;
+        border:1px solid #999 !important;
+        color:#000 !important;
+        font-size:9pt !important;
+        padding:1pt 5pt !important;
+      }
+      .hb-blue,.hb-red,.hb-gold,.hb-green { color:#000 !important; }
+      /* テーブル */
+      .leg-table {
+        width:100% !important;
+        max-width:100% !important;
+        font-size:10pt !important;
+        border-collapse:collapse !important;
+      }
+      .leg-table th {
+        color:#000 !important;
+        font-size:9pt !important;
+        border:1px solid #999 !important;
+        padding:3pt 4pt !important;
+        background:#ddd !important;
+      }
+      .leg-table td {
+        color:#000 !important;
+        border:1px solid #ccc !important;
+        padding:3pt 4pt !important;
+      }
+      .leg-table tr:nth-child(even) td { background:#f5f5f5 !important; }
+      .leg-table td:nth-child(2) { color:#000 !important; font-size:10pt !important; }
+      /* ボタン非表示 */
+      #legend-close, #legend-print { display:none !important; }
+      /* フッター */
+      #legend-overlay::after {
+        content:'キングオブキングス 説明書';
+        display:block;
+        text-align:center;
+        font-size:8pt;
+        color:#999;
+        border-top:1px solid #ccc;
+        margin-top:10pt;
+        padding-top:4pt;
+      }
     }
 
     /* ─── ゲームオーバー ─── */
@@ -223,6 +424,55 @@
       letter-spacing:2px;
     }
     #go-btn:active { background:#8b3000; }
+
+    /* ─── QRオーバーレイ ─── */
+    #qr-overlay {
+      display:none;
+      position:fixed; inset:0; z-index:200;
+      background:rgba(0,0,0,0.82);
+      align-items:center; justify-content:center;
+    }
+    #qr-overlay.show { display:flex; }
+    #qr-box {
+      background:linear-gradient(160deg,#1a0a2e,#0a0618);
+      border:2px solid #8855cc;
+      border-radius:16px;
+      padding:24px 28px;
+      text-align:center;
+      box-shadow:0 0 40px rgba(140,80,255,0.4);
+    }
+    #qr-box h3 {
+      color:#ffcc44;
+      font-size:15px;
+      letter-spacing:2px;
+      margin-bottom:16px;
+      text-shadow:0 0 8px #ff8800;
+    }
+    #qr-canvas-wrap {
+      background:#fff;
+      border-radius:10px;
+      padding:10px;
+      display:inline-block;
+      margin-bottom:14px;
+    }
+    #qr-url {
+      color:#aaa;
+      font-size:10px;
+      word-break:break-all;
+      max-width:220px;
+      margin-bottom:14px;
+    }
+    #qr-close {
+      background:#4a1a88;
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:8px 28px;
+      font-size:13px;
+      cursor:pointer;
+      letter-spacing:1px;
+    }
+    #qr-close:active { background:#6a2aaa; }
 
     /* ─── フローティングダメージ ─── */
     .float-dmg {
@@ -269,28 +519,97 @@
     <div id="btn-row">
       <button id="end-turn-btn" onclick="endPlayerTurn()">ターン終了 →</button>
       <button id="legend-btn" onclick="showLegend()">？</button>
+      <button id="qr-btn" onclick="showQR()">QR</button>
     </div>
   </div>
 </div>
 
-<!-- 凡例 -->
-<div id="legend-overlay">
-  <h2>♔ ユニット一覧</h2>
-  <table class="leg-table">
-    <tr><th>記号</th><th>名前</th><th>HP</th><th>ATK</th><th>DEF</th><th>移動</th><th>射程</th></tr>
-    <tr><td class="sym">♔</td><td>キング</td>    <td>5</td><td>3</td><td>2</td><td>1</td><td>1</td></tr>
-    <tr><td class="sym">⚔</td><td>パラディン</td><td>8</td><td>4</td><td>3</td><td>2</td><td>1</td></tr>
-    <tr><td class="sym">✦</td><td>ウィザード</td><td>3</td><td>6</td><td>1</td><td>1</td><td>3</td></tr>
-    <tr><td class="sym">▲</td><td>ジャイアント</td><td>14</td><td>7</td><td>4</td><td>1</td><td>1</td></tr>
-    <tr><td class="sym">↑</td><td>アーチャー</td><td>4</td><td>3</td><td>2</td><td>2</td><td>2</td></tr>
-    <tr><td class="sym">G</td><td>ゴブリン</td>  <td>3</td><td>2</td><td>1</td><td>3</td><td>1</td></tr>
-  </table>
-  <div style="margin-top:12px;font-size:12px;color:#888;text-align:center">
-    <span class="p">■ 青系 = 自軍</span> &nbsp; <span class="e">■ 赤系 = 敵軍</span><br>
-    青マス=移動可 / 赤マス=攻撃可<br>
-    ダメージ = ATK − DEF（最低1）
+<!-- QRコード -->
+<div id="qr-overlay" onclick="hideQR()">
+  <div id="qr-box" onclick="event.stopPropagation()">
+    <h3>⚔ キングオブキングス ⚔<br><span style="font-size:11px;color:#cc88ff">このゲームをシェア</span></h3>
+    <div id="qr-canvas-wrap"><div id="qr-code"></div></div>
+    <div id="qr-url"></div>
+    <button id="qr-close" onclick="hideQR()">閉じる</button>
   </div>
-  <button id="legend-close" onclick="hideLegend()">閉じる</button>
+</div>
+
+<!-- 説明書 -->
+<div id="legend-overlay">
+  <div class="help-title">⚔ キングオブキングス ⚔<br><span style="font-size:13px;color:#cc9900;letter-spacing:1px">説 明 書</span></div>
+
+  <!-- 目的 -->
+  <div class="help-section">
+    <h3>🏆 勝利条件</h3>
+    <ul class="help-steps">
+      <li>敵の <span style="color:#ffd700">キング</span> を倒せば勝利</li>
+      <li>自分のキングが倒されると敗北</li>
+    </ul>
+  </div>
+
+  <!-- 操作方法 -->
+  <div class="help-section">
+    <h3>👆 操作方法</h3>
+    <ul class="help-steps">
+      <li>自軍ユニット（<span class="p">青枠</span>）をタップして選択</li>
+      <li><span style="color:#4488ff">青く光るマス</span> をタップ → 移動</li>
+      <li><span style="color:#ff4444">赤く光るマス</span> をタップ → 攻撃</li>
+      <li>移動 → 攻撃 の順に行動できる</li>
+      <li>全ユニットの行動後、またはボタンで <span style="color:#ffd080">ターン終了</span></li>
+    </ul>
+  </div>
+
+  <!-- 色の意味 -->
+  <div class="help-section">
+    <h3>🎨 色の意味</h3>
+    <div class="help-row"><span class="help-badge hb-blue">青枠</span><span style="color:#ccbbee;font-size:12px">自軍ユニット</span></div>
+    <div class="help-row"><span class="help-badge hb-red">赤枠</span><span style="color:#ccbbee;font-size:12px">敵軍ユニット</span></div>
+    <div class="help-row"><span class="help-badge hb-blue">青マス点滅</span><span style="color:#ccbbee;font-size:12px">移動できるマス</span></div>
+    <div class="help-row"><span class="help-badge hb-red">赤マス点滅</span><span style="color:#ccbbee;font-size:12px">攻撃できるマス</span></div>
+    <div class="help-row"><span class="help-badge hb-gold">金枠点滅</span><span style="color:#ccbbee;font-size:12px">選択中のユニット</span></div>
+    <div class="help-row"><span class="help-badge" style="color:#666">薄い表示</span><span style="color:#ccbbee;font-size:12px">行動済みのユニット</span></div>
+  </div>
+
+  <!-- ダメージ計算 -->
+  <div class="help-section">
+    <h3>⚡ 戦闘ルール</h3>
+    <ul class="help-steps">
+      <li>ダメージ ＝ <span style="color:#ff8844">ATK</span> − <span style="color:#44aaff">DEF</span>（最低 1）</li>
+      <li>射程内の敵に隣接せず攻撃できる</li>
+      <li>HPが 0 になったユニットは消滅</li>
+    </ul>
+  </div>
+
+  <!-- レベルアップ -->
+  <div class="help-section">
+    <h3>★ レベルアップ</h3>
+    <ul class="help-steps">
+      <li>攻撃するたびに <span style="color:#ffdd00">EXP +1</span>、敵を倒すと <span style="color:#ffdd00">EXP +2</span></li>
+      <li><span style="color:#ffdd00">★</span> EXP 3 で <span style="color:#ffdd00">Lv2</span>：ATK+1・DEF+1・MaxHP+2</li>
+      <li><span style="color:#ff8800">★★</span> EXP 7 で <span style="color:#ff8800">Lv3</span>：さらにATK+1・DEF+1・MaxHP+2</li>
+      <li>レベルはユニット左上の星マークで確認できる</li>
+      <li>生き残って戦い続けるほど強くなる</li>
+    </ul>
+  </div>
+
+  <!-- ユニット一覧 -->
+  <div class="help-section">
+    <h3>🗡 ユニット一覧</h3>
+    <table class="leg-table">
+      <tr><th>名前</th><th style="color:#44ee44">HP</th><th style="color:#ff8844">ATK</th><th style="color:#44aaff">DEF</th><th style="color:#88eeaa">移動</th><th style="color:#ffcc44">射程</th><th>特徴</th></tr>
+      <tr><td>👑 キング</td>    <td>5</td><td>3</td><td>2</td><td>1</td><td>1</td><td style="color:#888;text-align:left">最重要・倒されると負け</td></tr>
+      <tr><td>🛡 パラディン</td><td>8</td><td>4</td><td>3</td><td>2</td><td>1</td><td style="color:#888;text-align:left">堅固な前衛</td></tr>
+      <tr><td>🔮 ウィザード</td><td>3</td><td>6</td><td>1</td><td>1</td><td>3</td><td style="color:#888;text-align:left">射程3の高火力・脆い</td></tr>
+      <tr><td>💪 ジャイアント</td><td>14</td><td>7</td><td>4</td><td>1</td><td>1</td><td style="color:#888;text-align:left">最強火力・超高耐久</td></tr>
+      <tr><td>🏹 アーチャー</td><td>4</td><td>3</td><td>2</td><td>2</td><td>2</td><td style="color:#888;text-align:left">機動力と射程を兼備</td></tr>
+      <tr><td>👺 ゴブリン</td>  <td>3</td><td>2</td><td>1</td><td>3</td><td>1</td><td style="color:#888;text-align:left">最速・数で圧倒</td></tr>
+    </table>
+  </div>
+
+  <div style="display:flex;gap:0;margin-top:8px;">
+    <button id="legend-close" onclick="hideLegend()" style="margin-top:0">閉じる</button>
+    <button id="legend-print" onclick="window.print()" style="margin-top:0">🖨 印刷</button>
+  </div>
 </div>
 
 <!-- ゲームオーバー -->
@@ -301,25 +620,55 @@
 </div>
 
 <script>
+// ─── roundRect ポリフィル（Chrome 99未満のAndroid対応） ───────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    r = typeof r === 'number' ? r : (Array.isArray(r) ? r[0] : 0);
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.arcTo(x + w, y, x + w, y + r, r);
+    this.lineTo(x + w, y + h - r);
+    this.arcTo(x + w, y + h, x + w - r, y + h, r);
+    this.lineTo(x + r, y + h);
+    this.arcTo(x, y + h, x, y + h - r, r);
+    this.lineTo(x, y + r);
+    this.arcTo(x, y, x + r, y, r);
+    return this;
+  };
+}
+
 // ─── Canvas & スケール ─────────────────────────────────────
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-const COLS = 8, ROWS = 8, CELL = 56;
+const COLS = 8, ROWS = 8, CELL = 72;
 const BASE_W = COLS * CELL, BASE_H = ROWS * CELL;
 let scale = 1;
 let canvasRect = { left:0, top:0 };
 
 function resize() {
   const wrap = document.getElementById('canvas-wrap');
-  const w = wrap.clientWidth, h = wrap.clientHeight;
+  // paddingを除いた実際のサイズ
+  const w = wrap.clientWidth  - 4;
+  const h = wrap.clientHeight - 4;
   scale = Math.min(w / BASE_W, h / BASE_H);
-  scale = Math.max(0.45, Math.min(scale, 2.0));
+  scale = Math.max(0.40, Math.min(scale, 2.0));
   canvas.width  = Math.round(BASE_W * scale);
   canvas.height = Math.round(BASE_H * scale);
   canvasRect = canvas.getBoundingClientRect();
   draw();
 }
-window.addEventListener('resize', () => { resize(); canvasRect = canvas.getBoundingClientRect(); });
+window.addEventListener('resize', () => {
+  // iOSアドレスバーの表示/非表示でリサイズが連続発火するのを防ぐ
+  clearTimeout(window._resizeTimer);
+  window._resizeTimer = setTimeout(() => {
+    resize();
+    canvasRect = canvas.getBoundingClientRect();
+  }, 100);
+});
+// 画面向き変更
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => { resize(); canvasRect = canvas.getBoundingClientRect(); }, 300);
+});
 
 // ─── ユニット定義 ──────────────────────────────────────────
 const DEF = {
@@ -332,6 +681,7 @@ const DEF = {
 };
 
 // ─── 状態 ─────────────────────────────────────────────────
+const IMAGES = {};
 let units=[], selected=null, hasMoved=false;
 let moveTargets=[], atkTargets=[];
 let phase='player'; // 'player'|'ai'|'over'
@@ -347,7 +697,7 @@ function loop() {
 // ─── 初期化 ───────────────────────────────────────────────
 function mk(type,owner,x,y) {
   const d=DEF[type];
-  return {type,owner,x,y,hp:d.hp,maxHp:d.hp,atk:d.atk,def:d.def,move:d.move,range:d.range,done:false,moved:false};
+  return {type,owner,x,y,hp:d.hp,maxHp:d.hp,atk:d.atk,def:d.def,move:d.move,range:d.range,done:false,moved:false,exp:0,level:1};
 }
 
 function startGame() {
@@ -356,17 +706,15 @@ function startGame() {
   phase='player';
   const E='enemy', P='player';
   units=[
+    // 敵：2列陣形
     mk('goblin', E,0,0),mk('archer', E,1,0),mk('paladin',E,2,0),
-    mk('king',   E,3,0),mk('wizard', E,4,0),mk('paladin',E,5,0),
-    mk('archer', E,6,0),mk('goblin', E,7,0),
-    mk('giant',  E,1,1),mk('goblin', E,3,1),
-    mk('goblin', E,4,1),mk('giant',  E,6,1),
+    mk('king',   E,3,0),mk('wizard', E,4,0),mk('paladin',E,5,0),mk('archer', E,6,0),mk('goblin', E,7,0),
+    mk('giant',  E,1,1),mk('goblin', E,3,1),mk('goblin', E,4,1),mk('giant',  E,6,1),
 
+    // 自軍：2列陣形（鏡像）
+    mk('giant',  P,1,6),mk('goblin', P,3,6),mk('goblin', P,4,6),mk('giant',  P,6,6),
     mk('goblin', P,0,7),mk('archer', P,1,7),mk('paladin',P,2,7),
-    mk('king',   P,3,7),mk('wizard', P,4,7),mk('paladin',P,5,7),
-    mk('archer', P,6,7),mk('goblin', P,7,7),
-    mk('giant',  P,1,6),mk('goblin', P,3,6),
-    mk('goblin', P,4,6),mk('giant',  P,6,6),
+    mk('king',   P,3,7),mk('wizard', P,4,7),mk('paladin',P,5,7),mk('archer', P,6,7),mk('goblin', P,7,7),
   ];
   document.getElementById('end-turn-btn').style.display='block';
   document.getElementById('turn-box').textContent='プレイヤーのターン';
@@ -405,16 +753,34 @@ function doAttack(att,def){
   const dmg=Math.max(1,att.atk-def.def);
   def.hp-=dmg;
   const dn=DEF[def.type].name, an=DEF[att.type].name;
-  // バイブレーション
   if(navigator.vibrate) navigator.vibrate(40);
-  // フローティングダメージ
   showFloatDmg(def.x, def.y, `-${dmg}`);
   if(def.hp<=0){
     units=units.filter(u=>u!==def);
     setMsg(`${an} が ${dn} を倒した！`);
     if(navigator.vibrate) navigator.vibrate([30,20,80]);
+    gainExp(att, 2); // 撃破で2EXP
   } else {
     setMsg(`${an} → ${dn} に ${dmg} ダメージ！（残HP:${def.hp}）`);
+    gainExp(att, 1); // 攻撃で1EXP
+  }
+}
+
+const EXP_TABLE=[0,3,7]; // Lv1→2:3EXP, Lv2→3:7EXP
+function gainExp(u, amt){
+  if(u.level>=3) return;
+  u.exp+=amt;
+  const need=EXP_TABLE[u.level];
+  if(u.exp>=need){
+    u.level++;
+    u.atk+=1;
+    u.def+=1;
+    const bonus=2;
+    u.maxHp+=bonus;
+    u.hp=Math.min(u.hp+bonus, u.maxHp);
+    showFloatDmg(u.x, u.y, `★Lv${u.level}`);
+    setMsg(`${DEF[u.type].name} がレベルアップ！ Lv${u.level} (ATK↑ DEF↑)`);
+    if(navigator.vibrate) navigator.vibrate([20,10,20,10,60]);
   }
 }
 
@@ -427,8 +793,13 @@ function showFloatDmg(gx, gy, text) {
   el.textContent=text;
   el.style.left=cx+'px';
   el.style.top=cy+'px';
+  if(text.startsWith('★')){
+    el.style.color='#ffdd00';
+    el.style.textShadow='0 0 10px #ff8800, 1px 1px 0 #000';
+    el.style.fontSize='20px';
+  }
   document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 900);
+  setTimeout(()=>el.remove(), 1100);
 }
 
 function checkWin(){
@@ -503,49 +874,422 @@ function handleClick(x,y){
   }
 }
 
-// ─── AI ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// AI 戦略強化版 — 自軍防衛+状況判断+役割分担+先読み
+// ═══════════════════════════════════════════════════════════
+
+const UNIT_VALUE={king:10000,wizard:950,paladin:580,giant:720,archer:380,goblin:130};
+
+// ══ 脅威マップ ═══════════════════════════════════════════════
+let _threatCache=null,_mobileThreat=null;
+function buildThreatCache(){
+  const pU=units.filter(p=>p.owner==='player');
+  _threatCache=new Map(); _mobileThreat=new Map();
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+    const k=`${x},${y}`;
+    const now=pU.filter(p=>dist({x,y},p)<=p.range);
+    if(now.length) _threatCache.set(k,now);
+    const mob=pU.filter(p=>!now.includes(p)&&dist({x,y},p)<=p.range+p.move);
+    if(mob.length) _mobileThreat.set(k,mob);
+  }
+}
+function getThreatAt(u,x,y){
+  return (_threatCache?.get(`${x},${y}`)||[]).reduce((s,p)=>s+Math.max(1,p.atk-u.def),0);
+}
+function getMobileThreat(u,x,y){
+  return (_mobileThreat?.get(`${x},${y}`)||[]).reduce((s,p)=>s+Math.max(1,p.atk-u.def)*0.55,0);
+}
+
+// ══ ゲーム状況判断 ═══════════════════════════════════════════
+let _phase='normal'; // 'rush'|'defend'|'normal'|'king_hunt'
+let _ekDanger=0;     // 自軍キングへの脅威レベル
+
+function assessSituation(){
+  const eU=units.filter(u=>u.owner==='enemy');
+  const pU=units.filter(u=>u.owner==='player');
+  const ek=eU.find(u=>u.type==='king');
+  const pk=pU.find(u=>u.type==='king');
+
+  // 自軍キングへの即時脅威
+  _ekDanger=0;
+  if(ek){
+    const immThreats=pU.filter(p=>dist(p,ek)<=p.range);
+    const mobThreats=pU.filter(p=>!immThreats.includes(p)&&dist(p,ek)<=p.range+p.move);
+    const immDmg=immThreats.reduce((s,p)=>s+Math.max(1,p.atk-ek.def),0);
+    const mobDmg=mobThreats.reduce((s,p)=>s+Math.max(1,p.atk-ek.def),0);
+    if(immDmg>=ek.hp) _ekDanger=3;
+    else if(immDmg>0) _ekDanger=2;
+    else if(mobDmg>=ek.hp) _ekDanger=1;
+  }
+
+  // 確実撃破できる高価値ターゲットがあるか
+  let _canKillHigh=false;
+  const eAll=eU.filter(u=>!u.done);
+  for(const p of pU){
+    if(UNIT_VALUE[p.type]>=500){
+      const dmg=eAll.filter(e=>dist(e,p)<=e.range||getMoves(e).some(m=>dist(m,p)<=e.range))
+        .reduce((s,e)=>s+Math.max(1,e.atk-p.def),0);
+      if(dmg>=p.hp){ _canKillHigh=true; break; }
+    }
+  }
+
+  // フェーズ決定（優先度順）
+  const ratio=eU.length/(pU.length||1);
+  if(pk&&pk.hp<=2) _phase='king_hunt';         // 敵キング瀕死→全軍突進
+  else if(_ekDanger>=2) _phase='defend';        // 自軍キング危機→防衛優先
+  else if(_canKillHigh) _phase='kill';          // 高価値ターゲット撃破チャンス→集中
+  else if(ratio>=1.3) _phase='rush';            // 数的優位→攻勢
+  else _phase='normal';
+}
+
+// ══ 攻撃位置取得（安全位置優先・位置衝突回避）══════════════
+let _killPlan=new Map();
+let _defendPlan=new Map();
+let _damagePlan=new Map();
+
+function getBestAtkPos(u, tgt, usedPos=[]){
+  const cands=[{x:u.x,y:u.y},...getMoves(u)]
+    .filter(p=>dist(p,tgt)<=u.range)
+    .filter(p=>!usedPos.some(q=>q.x===p.x&&q.y===p.y));
+  if(!cands.length) return null;
+  return cands.reduce((b,p)=>getThreatAt(u,p.x,p.y)<getThreatAt(u,b.x,b.y)?p:b);
+}
+
+// 集中撃破チームを組む（最大3体・位置衝突回避）
+function findKillTeam(target, pool){
+  const usedPos=[];
+  const reach=pool.map(u=>{
+    const pos=getBestAtkPos(u,target,usedPos);
+    if(pos){ usedPos.push(pos); return {u,pos,dmg:Math.max(1,u.atk-target.def)}; }
+    return null;
+  }).filter(Boolean).sort((a,b)=>b.dmg-a.dmg);
+  let total=0, team=[];
+  for(const r of reach){
+    team.push(r); total+=r.dmg;
+    if(total>=target.hp) return team;
+    if(team.length>=3) break;
+  }
+  return null;
+}
+
+function targetPriority(p, pU){
+  let v=UNIT_VALUE[p.type]||100;
+  v+=(1-p.hp/p.maxHp)*900;
+  if(!pU.some(q=>q!==p&&dist(p,q)<=2)) v+=600;
+  return v;
+}
+
+// ══ 防衛計画 ═════════════════════════════════════════════════
+function planDefense(available){
+  if(_ekDanger<1) return;
+  const ek=units.find(u=>u.owner==='enemy'&&u.type==='king');
+  if(!ek) return;
+  const pU=units.filter(u=>u.owner==='player');
+  const threats=pU.filter(p=>dist(p,ek)<=p.range+p.move)
+    .sort((a,b)=>Math.max(1,b.atk-ek.def)-Math.max(1,a.atk-ek.def));
+  const count=_ekDanger>=3?4:2;
+  for(const threat of threats.slice(0,count)){
+    const blocker=[...available]
+      .map(e=>{ const pos=getBestAtkPos(e,threat); return pos?{e,pos}:null; })
+      .filter(Boolean)
+      .sort((a,b)=>Math.max(1,b.e.atk-threat.def)-Math.max(1,a.e.atk-threat.def))[0];
+    if(blocker){
+      _defendPlan.set(blocker.e,{target:threat,bestPos:blocker.pos});
+      available.delete(blocker.e);
+    }
+  }
+}
+
+// ══ 撃破計画 ═════════════════════════════════════════════════
+function planKills(available){
+  const pU=units.filter(u=>u.owner==='player');
+  const targets=[...pU].sort((a,b)=>targetPriority(b,pU)-targetPriority(a,pU));
+  for(const target of targets){
+    if(!available.size) break;
+    const team=findKillTeam(target,[...available]);
+    if(team){
+      for(const m of team){ _killPlan.set(m.u,{target,bestPos:m.pos}); available.delete(m.u); }
+    }
+  }
+}
+
+// ══ ダメージ蓄積計画（次ターン撃破準備）═══════════════════════
+function planDamage(available){
+  if(!available.size) return;
+  const pU=units.filter(u=>u.owner==='player');
+  const eAll=units.filter(u=>u.owner==='enemy');
+  const targets=[...pU]
+    .filter(p=>![..._killPlan.values()].some(v=>v.target===p))
+    .sort((a,b)=>targetPriority(b,pU)-targetPriority(a,pU));
+  for(const target of targets){
+    if(!available.size) break;
+    const usedPos=[];
+    const reach=[...available].map(u=>{
+      const pos=getBestAtkPos(u,target,usedPos);
+      if(pos){ usedPos.push(pos); return {u,pos,dmg:Math.max(1,u.atk-target.def)}; }
+      return null;
+    }).filter(Boolean).sort((a,b)=>b.dmg-a.dmg);
+    if(!reach.length) continue;
+    const best=reach[0];
+    const remainHp=target.hp-best.dmg;
+    // 次ターン以内に倒せるようになるか試算
+    const nextMaxDmg=eAll.filter(e=>!_killPlan.has(e)&&e!==best.u)
+      .map(e=>Math.max(1,e.atk-target.def)).reduce((s,d)=>s+d,0);
+    if(remainHp>0&&remainHp<=nextMaxDmg*0.65&&UNIT_VALUE[target.type]>=300){
+      _damagePlan.set(best.u,{target,bestPos:best.pos});
+      available.delete(best.u);
+    }
+  }
+}
+
+// ══ ターン全計画 ══════════════════════════════════════════════
+function planTurn(){
+  _killPlan=new Map(); _defendPlan=new Map(); _damagePlan=new Map();
+  const available=new Set(units.filter(u=>u.owner==='enemy'&&!u.done));
+  planDefense(available);
+  planKills(available);
+  planDamage(available);
+}
+
+// ══ 割り当て実行 ══════════════════════════════════════════════
+function executeAssignment(u,plan){
+  const target=plan.target;
+  if(!target||!units.includes(target)) return false;
+  const cands=[{x:u.x,y:u.y},...getMoves(u)];
+  const bpos=plan.bestPos;
+  // 計画した位置に移動できるなら移動
+  if(bpos&&cands.some(c=>c.x===bpos.x&&c.y===bpos.y)){
+    if(bpos.x!==u.x||bpos.y!==u.y){ u.x=bpos.x; u.y=bpos.y; }
+  } else {
+    // 塞がれた場合：別の攻撃可能位置、なければ最接近
+    const altAtk=cands.filter(p=>dist(p,target)<=u.range);
+    if(altAtk.length){
+      const best=altAtk.reduce((b,p)=>getThreatAt(u,p.x,p.y)<getThreatAt(u,b.x,b.y)?p:b);
+      if(best.x!==u.x||best.y!==u.y){ u.x=best.x; u.y=best.y; }
+    } else {
+      const best=cands.reduce((b,p)=>dist(p,target)<dist(b,target)?p:b);
+      if(best.x!==u.x||best.y!==u.y){ u.x=best.x; u.y=best.y; }
+    }
+  }
+  // 攻撃（ターゲットが射程内なら優先）
+  if(units.includes(target)&&dist(u,target)<=u.range){
+    doAttack(u,target);
+  } else {
+    const tgts=getAtk(u);
+    if(tgts.length) doAttack(u,aiBestTarget(u,tgts));
+  }
+  return true;
+}
+
+// ══ ターゲット評価 ══════════════════════════════════════════
+function aiTargetScore(att,tgt){
+  const dmg=Math.max(1,att.atk-tgt.def);
+  let s=dmg*18+(UNIT_VALUE[tgt.type]||100);
+  if(tgt.hp<=dmg) s+=6000;                         // 即死→最優先
+  else if(tgt.hp<=dmg*1.3) s+=1200;                // もう少しで死ぬ
+  else if(tgt.hp/tgt.maxHp<0.4) s+=700;            // 低HP状態
+  const planned=[..._killPlan.values()].filter(v=>v.target===tgt).length;
+  if(planned>0&&tgt.hp>dmg*2) s-=1500;             // 過剰攻撃を避ける
+  if(!units.filter(p=>p.owner==='player'&&p!==tgt&&dist(p,tgt)<=2).length) s+=500;
+  return s;
+}
+function aiBestTarget(att,tgts){
+  return tgts.reduce((b,t)=>{const s=aiTargetScore(att,t);return s>b.s?{t,s}:b},{t:null,s:-1}).t;
+}
+
+// ══ 位置評価（フェーズ対応）════════════════════════════════
+function scorePos(u,pos,pk,ek,pUnits){
+  let score=0;
+  const atkAfter=getAtk(u,pos.x,pos.y);
+  const threat=getThreatAt(u,pos.x,pos.y);
+  const mobT=getMobileThreat(u,pos.x,pos.y);
+  const isFragile=u.type==='wizard'||u.type==='archer';
+  const isTank=u.type==='giant'||u.type==='paladin';
+
+  // 攻撃評価
+  if(atkAfter.length){
+    const bt=aiBestTarget(u,atkAfter);
+    if(bt) score+=600+aiTargetScore(u,bt);
+  }
+
+  // 即死回避（最優先）
+  if(threat>=u.hp) score-=15000;
+  else{ const w=isTank?3:isFragile?30:13; score-=threat*w+mobT*(w*0.45); }
+
+  // フェーズ別方針
+  if(_phase==='king_hunt'&&pk){
+    score-=dist(pos,pk)*30;
+    if(dist(pos,pk)<=u.range) score+=5000;
+  } else if(_phase==='defend'&&ek){
+    const dToEK=dist(pos,ek);
+    if(dToEK<=2) score+=700;
+    else score-=(dToEK-2)*25;
+    if(atkAfter.length) score+=900;
+  } else if(_phase==='kill'){
+    // 殺害チャンス：killPlanターゲットに向けて収束
+    const killTargets=new Set([..._killPlan.values()].map(v=>v.target));
+    if(killTargets.size&&pUnits.length){
+      const nearest=[...killTargets].reduce((b,t)=>dist(pos,t)<dist(pos,b)?t:b,[...killTargets][0]);
+      score-=dist(pos,nearest)*12;
+    }
+    if(atkAfter.length) score+=700;
+  } else if(_phase==='rush'&&pk){
+    score-=dist(pos,pk)*20;
+    if(dist(pos,pk)<=u.range) score+=3000;
+  } else {
+    if(pk) score-=dist(pos,pk)*11;
+    if(pUnits.length) score-=Math.min(...pUnits.map(p=>dist(pos,p)))*6;
+  }
+
+  // 役割別
+  switch(u.type){
+    case 'wizard':
+      if(pk){
+        const d=dist(pos,pk);
+        if(d===u.range) score+=800;        // 射程端が理想
+        else if(d===u.range-1) score+=200;
+        else if(d<u.range-1) score-=1400; // 近づきすぎは危険
+        else score-=d*8;
+      }
+      score-=threat*50; score-=mobT*30;
+      if(u.hp/u.maxHp<0.5){ score-=threat*80; if(ek) score+=dist(pos,ek)*12; }
+      break;
+    case 'archer':
+      if(pk){
+        const d=dist(pos,pk);
+        if(d===u.range) score+=500;        // 射程端で安全攻撃
+        else if(d<u.range) score+=300;
+      }
+      // タンク（giant/paladin）より前に出ない
+      {
+        const tanks=units.filter(u2=>u2.owner==='enemy'&&(u2.type==='giant'||u2.type==='paladin'));
+        if(tanks.length){
+          const frontY=Math.min(...tanks.map(u2=>u2.y));
+          if(pos.y<frontY) score-=900;     // 前線を越えない
+        }
+      }
+      score-=threat*38;
+      break;
+    case 'giant':
+      // 前線を張り、横並びで壁を形成して後衛を守る
+      if(pk) score-=dist(pos,pk)*17;
+      if(ek&&dist(pos,ek)>2) score-=(dist(pos,ek)-2)*14;
+      {
+        const allies=units.filter(u2=>u2.owner==='enemy'&&u2!==u&&u2.type==='giant');
+        allies.forEach(a=>{ if(pos.y===a.y&&Math.abs(pos.x-a.x)<=5) score+=180; });
+        // 後衛ユニット（wizard/archer）より前に出すぎない
+        const rear=units.filter(u2=>u2.owner==='enemy'&&(u2.type==='wizard'||u2.type==='archer'));
+        if(rear.length&&pos.y<Math.min(...rear.map(r=>r.y))-3) score-=250;
+      }
+      if(_phase!=='defend'&&ek&&pos.y>ek.y+3) score-=300;
+      break;
+    case 'goblin': {
+      // 瀕死の敵や孤立した敵を最優先
+      const wounded=pUnits.filter(p=>p.hp/p.maxHp<0.4);
+      const iso=pUnits.filter(p=>!pUnits.some(q=>q!==p&&dist(p,q)<=2));
+      const priority=[...new Set([...wounded,...iso])];
+      if(priority.length) score-=Math.min(...priority.map(p=>dist(pos,p)))*14;
+      else if(pUnits.length) score-=Math.min(...pUnits.map(p=>dist(pos,p)))*10;
+      // 即死リスク回避を最優先
+      if(threat>=u.hp) score-=12000;
+      else if(threat>0) score-=threat*20;
+      // タンクの後ろで前進（露出しない）
+      {
+        const tanks=units.filter(u2=>u2.owner==='enemy'&&(u2.type==='giant'||u2.type==='paladin'));
+        if(tanks.length){
+          const near=tanks.reduce((b,g)=>dist(pos,g)<dist(pos,b)?g:b);
+          if(dist(pos,near)<=2&&pos.y>=near.y) score+=150;
+        }
+      }
+      break;
+    }
+    case 'king':
+      score-=threat*90; score-=mobT*55;
+      // 後方維持：他の敵ユニットより前に出ない
+      {
+        const others=units.filter(u2=>u2.owner==='enemy'&&u2!==u);
+        if(others.length){
+          const avgY=others.reduce((s,u2)=>s+u2.y,0)/others.length;
+          if(pos.y<avgY-1) score-=600;
+        }
+      }
+      if(ek&&dist(pos,ek)>2) score-=(dist(pos,ek)-2)*20;
+      break;
+  }
+
+  if(u.hp/u.maxHp<0.35&&isFragile){ score-=threat*90; if(ek) score+=dist(pos,ek)*12; }
+  score-=units.filter(a=>a.owner==='enemy'&&a!==u&&dist(pos,a)<=1).length*18;
+  return score;
+}
+
+// ══ ユニット行動 ══════════════════════════════════════════════
+function aiMove(u){
+  if(_killPlan.has(u))  { if(executeAssignment(u,_killPlan.get(u)))  return; }
+  if(_defendPlan.has(u)){ if(executeAssignment(u,_defendPlan.get(u))) return; }
+  if(_damagePlan.has(u)){ if(executeAssignment(u,_damagePlan.get(u))) return; }
+
+  const pk=units.find(p=>p.owner==='player'&&p.type==='king');
+  const ek=units.find(p=>p.owner==='enemy'&&p.type==='king');
+  const pUnits=units.filter(p=>p.owner==='player');
+  const candidates=[{x:u.x,y:u.y},...getMoves(u)];
+  let best=null,bestScore=-Infinity;
+  for(const pos of candidates){
+    const s=scorePos(u,pos,pk,ek,pUnits);
+    if(s>bestScore){bestScore=s;best=pos;}
+  }
+  if(best&&(best.x!==u.x||best.y!==u.y)){u.x=best.x;u.y=best.y;}
+  const tgts=getAtk(u);
+  if(tgts.length) doAttack(u,aiBestTarget(u,tgts));
+}
+
+// ══ AIターン制御 ════════════════════════════════════════════
 function runAI(){
   if(phase!=='ai') return;
-  const enemies=units.filter(u=>u.owner==='enemy'&&!u.done);
+  let enemies=units.filter(u=>u.owner==='enemy'&&!u.done);
   if(!enemies.length){
-    units.forEach(u=>{u.done=false; u.moved=false;});
+    units.forEach(u=>{ u.done=false; u.moved=false; });
+    _threatCache=null; _mobileThreat=null;
+    _killPlan=new Map(); _defendPlan=new Map(); _damagePlan=new Map();
     phase='player';
     document.getElementById('turn-box').textContent='プレイヤーのターン';
     document.getElementById('end-turn-btn').style.display='block';
     setMsg('プレイヤーのターンです');
     updateUI(); return;
   }
+
+  // ターン最初に全局面分析・計画立案
+  if(!_threatCache){
+    buildThreatCache();
+    assessSituation();
+    planTurn();
+  }
+
+  // 行動優先度：防衛>殺害計画(キング)>キング直接攻撃チャンス>殺害計画>撃破可能>攻撃可能>移動
+  const pk=units.find(p=>p.owner==='player'&&p.type==='king');
+  enemies.sort((a,b)=>{
+    const pri=u=>{
+      if(_defendPlan.has(u)) return 9500;
+      if(_killPlan.has(u)){
+        const p=_killPlan.get(u);
+        return p.target?.type==='king'?9300:6000;
+      }
+      if(pk&&dist(u,pk)<=u.range){
+        return Math.max(1,u.atk-pk.def)>=pk.hp?9100:5000;
+      }
+      if(_damagePlan.has(u)) return 4500;
+      const tgts=getAtk(u);
+      if(tgts.some(t=>Math.max(1,u.atk-t.def)>=t.hp)) return 3200;
+      if(tgts.length) return 1100;
+      return 0;
+    };
+    return pri(b)-pri(a);
+  });
+
   aiMove(enemies[0]);
   enemies[0].done=true;
   if(checkWin()) return;
   updateUI();
-  setTimeout(runAI, 260);
-}
-
-function aiMove(u){
-  let tgts=getAtk(u);
-  if(tgts.length){ doAttack(u,tgts.sort((a,b)=>a.hp-b.hp)[0]); return; }
-  const moves=getMoves(u);
-  if(!moves.length) return;
-  const pk=units.find(p=>p.owner==='player'&&p.type==='king');
-  let best=null, bestScore=-Infinity;
-  for(const mv of moves){
-    const atkAfter=getAtk(u,mv.x,mv.y);
-    let score=0;
-    if(atkAfter.length){
-      score+=500+atkAfter.reduce((s,t)=>s+Math.max(1,u.atk-t.def),0)*10;
-      if(atkAfter.some(t=>t.type==='king')) score+=2000;
-    }
-    if(pk) score-=dist(mv,pk)*3;
-    const pUnits=units.filter(p=>p.owner==='player');
-    if(pUnits.length) score-=Math.min(...pUnits.map(p=>dist(mv,p)));
-    if(score>bestScore){ bestScore=score; best=mv; }
-  }
-  if(best){
-    u.x=best.x; u.y=best.y;
-    tgts=getAtk(u);
-    if(tgts.length) doAttack(u,tgts.sort((a,b)=>a.hp-b.hp)[0]);
-  }
+  setTimeout(runAI,140);
 }
 
 // ─── UI ──────────────────────────────────────────────────
@@ -574,18 +1318,133 @@ function updateUI(){
 function showLegend(){ document.getElementById('legend-overlay').classList.add('show'); }
 function hideLegend(){ document.getElementById('legend-overlay').classList.remove('show'); }
 
+let qrGenerated=false;
+function showQR(){
+  const url=location.href;
+  document.getElementById('qr-url').textContent=url;
+  if(!qrGenerated){
+    new QRCode(document.getElementById('qr-code'),{
+      text:url, width:200, height:200,
+      colorDark:'#1a0040', colorLight:'#ffffff',
+      correctLevel:QRCode.CorrectLevel.M
+    });
+    qrGenerated=true;
+  }
+  document.getElementById('qr-overlay').classList.add('show');
+}
+function hideQR(){ document.getElementById('qr-overlay').classList.remove('show'); }
+
+// ─── 画像プリロード ───────────────────────────────────────
+function preloadImages(cb) {
+  let n = 2;
+  function done() { if(--n === 0) cb(); }
+  n = 6;
+  ['king','goblin','archer','giant','paladin','wizard'].forEach(k => {
+    const img = new Image();
+    img.onload = done; img.onerror = done;
+    img.src = k + '.png';
+    IMAGES[k] = img;
+  });
+}
+
+function drawCharImage(img, cx, cy, col) {
+  const ix = Math.round(cx - CELL/2);
+  const iy = Math.round(cy - CELL/2 + 3);
+  const iw = CELL;
+  const ih = CELL - 10;
+  if (img && img.complete && img.naturalWidth > 0) {
+    const cw = img.naturalWidth;
+    const ch = img.naturalHeight;
+    ctx.drawImage(img, 0, 0, cw, Math.round(ch * 0.52), ix, iy, iw, ih);
+    ctx.fillStyle = col + '40';
+    ctx.fillRect(ix, iy, iw, ih);
+  }
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(ix + 1, iy, iw - 2, ih);
+}
+
+function drawEmojiChar(emoji, cx, cy, col, bg) {
+  const ix = Math.round(cx - CELL/2) + 2;
+  const iy = Math.round(cy - CELL/2 + 3) + 1;
+  const iw = CELL - 4;
+  const ih = CELL - 14;
+  // 陣営カラー背景
+  ctx.fillStyle = bg;
+  ctx.fillRect(ix, iy, iw, ih);
+  // 絵文字（大きく中央）
+  ctx.font = `${Math.round(CELL * 0.52)}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, cx, cy - 2);
+  // 陣営カラー枠線
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(ix, iy, iw, ih);
+}
+
 // ─── 描画 ────────────────────────────────────────────────
 function draw(){
   ctx.setTransform(scale,0,0,scale,0,0);
   ctx.clearRect(0,0,BASE_W,BASE_H);
 
-  // チェス盤
+  // 背景グラデーション（敵陣：深紅 → 中央：暗紫 → 自陣：深青）
+  const bgGrad=ctx.createLinearGradient(0,0,0,BASE_H);
+  bgGrad.addColorStop(0,'#1c0505');
+  bgGrad.addColorStop(0.4,'#120618');
+  bgGrad.addColorStop(0.6,'#080620');
+  bgGrad.addColorStop(1,'#030318');
+  ctx.fillStyle=bgGrad;
+  ctx.fillRect(0,0,BASE_W,BASE_H);
+
+  // マス目（石畳・領域カラー）
   for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
-    ctx.fillStyle=(x+y)%2===0?'#14082a':'#1e1042';
+    const even=(x+y)%2===0;
+    let ca,cb;
+    if(y<=2){       ca='#240a0a'; cb='#2c0d0d'; }  // 敵陣：深紅
+    else if(y>=6){  ca='#070a1e'; cb='#0a0d28'; }  // 自陣：深青
+    else{           ca='#0e0820'; cb='#150c2a'; }  // 中立：暗紫
+    ctx.fillStyle=even?ca:cb;
     ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+
+    // 石目ライン（横方向の目地）
+    ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=0.8;
+    [0.35,0.68].forEach(t=>{
+      ctx.beginPath();
+      ctx.moveTo(x*CELL,y*CELL+CELL*t);
+      ctx.lineTo(x*CELL+CELL,y*CELL+CELL*t);
+      ctx.stroke();
+    });
+    // ハイライト（石の上辺）
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.6;
+    ctx.beginPath();
+    ctx.moveTo(x*CELL,y*CELL+1);
+    ctx.lineTo(x*CELL+CELL,y*CELL+1);
+    ctx.stroke();
   }
+
+  // 領域オーバーレイ（敵陣：赤み）
+  const redGrad=ctx.createLinearGradient(0,0,0,CELL*3.5);
+  redGrad.addColorStop(0,'rgba(200,0,0,0.13)');
+  redGrad.addColorStop(1,'rgba(200,0,0,0)');
+  ctx.fillStyle=redGrad; ctx.fillRect(0,0,BASE_W,CELL*3.5);
+
+  // 領域オーバーレイ（自陣：青み）
+  const blueGrad=ctx.createLinearGradient(0,BASE_H,0,BASE_H-CELL*3.5);
+  blueGrad.addColorStop(0,'rgba(0,40,200,0.13)');
+  blueGrad.addColorStop(1,'rgba(0,40,200,0)');
+  ctx.fillStyle=blueGrad; ctx.fillRect(0,BASE_H-CELL*3.5,BASE_W,CELL*3.5);
+
+  // 中央戦線グロー
+  const midY=ROWS/2*CELL;
+  const midGrad=ctx.createLinearGradient(0,midY-10,0,midY+10);
+  midGrad.addColorStop(0,'rgba(160,80,255,0)');
+  midGrad.addColorStop(0.5,'rgba(160,80,255,0.28)');
+  midGrad.addColorStop(1,'rgba(160,80,255,0)');
+  ctx.fillStyle=midGrad; ctx.fillRect(0,midY-10,BASE_W,20);
+
   // グリッド線
-  ctx.strokeStyle='#3a2870'; ctx.lineWidth=0.8;
+  ctx.strokeStyle='rgba(90,55,140,0.45)'; ctx.lineWidth=0.7;
   for(let x=0;x<=COLS;x++){
     ctx.beginPath();ctx.moveTo(x*CELL,0);ctx.lineTo(x*CELL,BASE_H);ctx.stroke();
   }
@@ -593,20 +1452,65 @@ function draw(){
     ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(BASE_W,y*CELL);ctx.stroke();
   }
 
+  // ビネット（外周を暗く）
+  const vGrad=ctx.createRadialGradient(BASE_W/2,BASE_H/2,BASE_W*0.3,BASE_W/2,BASE_H/2,BASE_W*0.75);
+  vGrad.addColorStop(0,'rgba(0,0,0,0)');
+  vGrad.addColorStop(1,'rgba(0,0,0,0.45)');
+  ctx.fillStyle=vGrad; ctx.fillRect(0,0,BASE_W,BASE_H);
+
+  // 豪華な外枠
+  ctx.strokeStyle='rgba(140,80,200,0.7)'; ctx.lineWidth=3;
+  ctx.strokeRect(1,1,BASE_W-2,BASE_H-2);
+  ctx.strokeStyle='rgba(255,210,60,0.55)'; ctx.lineWidth=1.2;
+  ctx.strokeRect(4,4,BASE_W-8,BASE_H-8);
+
+  // コーナー装飾（金の菱形）
+  [[6,6],[BASE_W-6,6],[6,BASE_H-6],[BASE_W-6,BASE_H-6]].forEach(([cx,cy])=>{
+    ctx.fillStyle='#ffcc44';
+    ctx.beginPath();
+    ctx.moveTo(cx,cy-5); ctx.lineTo(cx+5,cy);
+    ctx.lineTo(cx,cy+5); ctx.lineTo(cx-5,cy);
+    ctx.closePath(); ctx.fill();
+  });
+
   // 移動ハイライト（パルス）
   const pulse=(Math.sin(animFrame*0.12)+1)/2;
-  ctx.fillStyle=`rgba(50,130,255,${0.20+pulse*0.15})`;
-  for(const m of moveTargets) ctx.fillRect(m.x*CELL+2,m.y*CELL+2,CELL-4,CELL-4);
+  ctx.fillStyle=`rgba(60,150,255,${0.22+pulse*0.15})`;
+  for(const m of moveTargets){
+    ctx.beginPath();
+    ctx.roundRect(m.x*CELL+3,m.y*CELL+3,CELL-6,CELL-6,4);
+    ctx.fill();
+  }
+  // 移動ハイライト枠線
+  ctx.strokeStyle=`rgba(100,180,255,${0.4+pulse*0.3})`; ctx.lineWidth=1.5;
+  for(const m of moveTargets){
+    ctx.beginPath();
+    ctx.roundRect(m.x*CELL+3,m.y*CELL+3,CELL-6,CELL-6,4);
+    ctx.stroke();
+  }
 
-  // 攻撃ハイライト（パルス逆位相）
-  ctx.fillStyle=`rgba(255,50,50,${0.25+pulse*0.15})`;
-  for(const t of atkTargets) ctx.fillRect(t.x*CELL+2,t.y*CELL+2,CELL-4,CELL-4);
+  // 攻撃ハイライト
+  ctx.fillStyle=`rgba(255,60,60,${0.25+pulse*0.15})`;
+  for(const t of atkTargets){
+    ctx.beginPath();
+    ctx.roundRect(t.x*CELL+3,t.y*CELL+3,CELL-6,CELL-6,4);
+    ctx.fill();
+  }
+  ctx.strokeStyle=`rgba(255,120,60,${0.5+pulse*0.3})`; ctx.lineWidth=1.5;
+  for(const t of atkTargets){
+    ctx.beginPath();
+    ctx.roundRect(t.x*CELL+3,t.y*CELL+3,CELL-6,CELL-6,4);
+    ctx.stroke();
+  }
 
-  // 選択枠（点滅）
+  // 選択枠（金・点滅）
   if(selected){
-    ctx.strokeStyle=`rgba(255,215,0,${0.6+pulse*0.4})`;
-    ctx.lineWidth=3;
-    ctx.strokeRect(selected.x*CELL+3,selected.y*CELL+3,CELL-6,CELL-6);
+    ctx.shadowColor='#FFD700'; ctx.shadowBlur=12;
+    ctx.strokeStyle=`rgba(255,215,0,${0.7+pulse*0.3})`; ctx.lineWidth=2.5;
+    ctx.beginPath();
+    ctx.roundRect(selected.x*CELL+3,selected.y*CELL+3,CELL-6,CELL-6,4);
+    ctx.stroke();
+    ctx.shadowBlur=0;
   }
 
   // 行動可能ユニットの輝き
@@ -614,11 +1518,11 @@ function draw(){
     for(const u of units.filter(v=>v.owner==='player'&&!v.done&&v!==selected)){
       const glow=ctx.createRadialGradient(
         u.x*CELL+CELL/2,u.y*CELL+CELL/2,0,
-        u.x*CELL+CELL/2,u.y*CELL+CELL/2,CELL*0.48
+        u.x*CELL+CELL/2,u.y*CELL+CELL/2,CELL*0.5
       );
-      const a=0.08+pulse*0.08;
-      glow.addColorStop(0,`rgba(255,220,100,${a})`);
-      glow.addColorStop(1,'rgba(255,220,100,0)');
+      const a=0.1+pulse*0.1;
+      glow.addColorStop(0,`rgba(255,230,80,${a})`);
+      glow.addColorStop(1,'rgba(255,230,80,0)');
       ctx.fillStyle=glow;
       ctx.fillRect(u.x*CELL,u.y*CELL,CELL,CELL);
     }
@@ -629,217 +1533,644 @@ function draw(){
 
 // ─── キャラクター個別描画 ──────────────────────────────────
 function drawKing(cx, cy, r, col, bg) {
-  // ローブ（台形）
-  ctx.fillStyle=bg;
+  const gold   = '#FFD700';
+  const gold2  = '#c8a000';
+  const cloak  = bg === '#001040' ? '#0e2288' : '#991100';
+  const cloakD = bg === '#001040' ? '#091660' : '#660a00';
+  const fur    = '#e8e0d0';
+  const armor  = '#2a2e3a';
+
+  // マント（外側・大きく広がる）
+  ctx.fillStyle = cloakD;
   ctx.beginPath();
-  ctx.moveTo(cx-r*0.65, cy+r); ctx.lineTo(cx-r*0.3, cy);
-  ctx.lineTo(cx+r*0.3, cy); ctx.lineTo(cx+r*0.65, cy+r);
+  ctx.moveTo(cx - r*1.02, cy + r*1.1);
+  ctx.lineTo(cx - r*0.32, cy - r*0.08);
+  ctx.lineTo(cx + r*0.32, cy - r*0.08);
+  ctx.lineTo(cx + r*1.02, cy + r*1.1);
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
-  // 王冠ベース
-  ctx.fillStyle=col;
-  ctx.fillRect(cx-r*0.52, cy-r*0.84, r*1.04, r*0.18);
-  // 王冠3点
-  [[cx-r*0.38,cy-r*1.28],[cx,cy-r*1.44],[cx+r*0.38,cy-r*1.28]].forEach(([px,py])=>{
-    ctx.beginPath(); ctx.moveTo(px,py);
-    ctx.lineTo(px-r*0.17,cy-r*0.84); ctx.lineTo(px+r*0.17,cy-r*0.84);
-    ctx.closePath(); ctx.fill();
+  // マント内側（明るい色）
+  ctx.fillStyle = cloak;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.82, cy + r*1.1);
+  ctx.lineTo(cx - r*0.26, cy - r*0.08);
+  ctx.lineTo(cx + r*0.26, cy - r*0.08);
+  ctx.lineTo(cx + r*0.82, cy + r*1.1);
+  ctx.closePath(); ctx.fill();
+  // マントの金縁
+  ctx.strokeStyle = gold2; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*1.02, cy + r*1.1);
+  ctx.lineTo(cx - r*0.32, cy - r*0.08);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + r*1.02, cy + r*1.1);
+  ctx.lineTo(cx + r*0.32, cy - r*0.08);
+  ctx.stroke();
+
+  // 毛皮の縁取り（襟）
+  ctx.fillStyle = fur;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.5, cy - r*0.04);
+  ctx.lineTo(cx - r*0.32, cy - r*0.36);
+  ctx.lineTo(cx + r*0.32, cy - r*0.36);
+  ctx.lineTo(cx + r*0.5, cy - r*0.04);
+  ctx.closePath(); ctx.fill();
+  // 毛皮のテクスチャ
+  ctx.strokeStyle = '#bbb8b0'; ctx.lineWidth = 1;
+  for(let i = -3; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx + i*r*0.14, cy - r*0.04);
+    ctx.lineTo(cx + i*r*0.12, cy - r*0.3);
+    ctx.stroke();
+  }
+
+  // 胸鎧
+  ctx.fillStyle = armor;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.34, cy - r*0.36);
+  ctx.lineTo(cx - r*0.4,  cy + r*0.28);
+  ctx.lineTo(cx + r*0.4,  cy + r*0.28);
+  ctx.lineTo(cx + r*0.34, cy - r*0.36);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = gold; ctx.lineWidth = 1.5; ctx.stroke();
+  // 胸の紋章（十字）
+  ctx.fillStyle = gold;
+  ctx.fillRect(cx - r*0.05, cy - r*0.26, r*0.1,  r*0.48);
+  ctx.fillRect(cx - r*0.22, cy - r*0.06, r*0.44, r*0.1);
+  // 鎧の横帯
+  ctx.strokeStyle = gold2; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.38, cy + r*0.08); ctx.lineTo(cx + r*0.38, cy + r*0.08); ctx.stroke();
+
+  // 肩パッド（左右・大きく）
+  [[-1, 1], [1, -1]].forEach(([sx, dir]) => {
+    ctx.fillStyle = armor;
+    ctx.beginPath();
+    ctx.arc(cx + sx*r*0.44, cy - r*0.22, r*0.26, dir*Math.PI*0.5, dir*Math.PI*1.5);
+    ctx.fill();
+    ctx.strokeStyle = gold; ctx.lineWidth = 1.5; ctx.stroke();
+    // 肩の金装飾
+    ctx.fillStyle = gold2;
+    ctx.fillRect(cx + sx*r*0.44 - r*0.08, cy - r*0.32, r*0.16, r*0.06);
   });
-  // 宝石
-  ctx.fillStyle='#fff';
-  ctx.beginPath(); ctx.arc(cx, cy-r*1.44, r*0.07, 0, Math.PI*2); ctx.fill();
-  // 顔
-  ctx.fillStyle=bg;
-  ctx.beginPath(); ctx.arc(cx, cy-r*0.38, r*0.3, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle=col;
-  ctx.beginPath(); ctx.arc(cx-r*0.1, cy-r*0.42, r*0.06, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+r*0.1, cy-r*0.42, r*0.06, 0, Math.PI*2); ctx.fill();
+
+  // 剣（右手・下げて構える）
+  const sx2 = cx + r*0.6, sy2 = cy + r*0.28;
+  ctx.strokeStyle = '#888899'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(sx2, sy2); ctx.lineTo(sx2 + r*0.22, cy + r*1.1); ctx.stroke();
+  ctx.fillStyle = gold;
+  ctx.fillRect(sx2 - r*0.2, sy2, r*0.4, r*0.09); // 鍔
+  ctx.fillRect(sx2 - r*0.05, sy2 - r*0.22, r*0.1, r*0.24); // 柄
+  // 刀身の光
+  ctx.strokeStyle = '#ccd0e0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx2 + r*0.04, sy2 + r*0.06); ctx.lineTo(sx2 + r*0.24, cy + r*1.08); ctx.stroke();
+
+  // 顔（威厳ある・ひげ）
+  ctx.fillStyle = '#e0b888';
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.56, r*0.32, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = gold2; ctx.lineWidth = 1; ctx.stroke();
+  // 眉（太く威厳）
+  ctx.fillStyle = '#4a3520';
+  ctx.fillRect(cx - r*0.22, cy - r*0.68, r*0.18, r*0.06);
+  ctx.fillRect(cx + r*0.04, cy - r*0.68, r*0.18, r*0.06);
+  // 目（鋭い）
+  ctx.fillStyle = '#1a1a22';
+  ctx.beginPath(); ctx.arc(cx - r*0.1, cy - r*0.58, r*0.055, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r*0.1, cy - r*0.58, r*0.055, 0, Math.PI*2); ctx.fill();
+  // あごひげ
+  ctx.fillStyle = '#555040';
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.22, cy - r*0.42);
+  ctx.bezierCurveTo(cx - r*0.28, cy - r*0.22, cx - r*0.16, cy - r*0.1, cx, cy - r*0.08);
+  ctx.bezierCurveTo(cx + r*0.16, cy - r*0.1, cx + r*0.28, cy - r*0.22, cx + r*0.22, cy - r*0.42);
+  ctx.closePath(); ctx.fill();
+
+  // 王冠（重厚・5点）
+  ctx.fillStyle = gold;
+  // ベース帯
+  ctx.fillRect(cx - r*0.54, cy - r*0.92, r*1.08, r*0.22);
+  ctx.strokeStyle = gold2; ctx.lineWidth = 1; ctx.stroke();
+  // 5点の尖り
+  [cx - r*0.4, cx - r*0.2, cx, cx + r*0.2, cx + r*0.4].forEach((px, i) => {
+    const h = i % 2 === 0 ? r*0.38 : r*0.24;
+    ctx.fillStyle = gold;
+    ctx.beginPath();
+    ctx.moveTo(px, cy - r*0.92 - h);
+    ctx.lineTo(px - r*0.14, cy - r*0.92);
+    ctx.lineTo(px + r*0.14, cy - r*0.92);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = gold2; ctx.lineWidth = 1; ctx.stroke();
+  });
+  // 宝石（中央・左右）
+  [[cx, cy - r*1.3, '#ff2222', r*0.1],
+   [cx - r*0.4, cy - r*0.98, '#4488ff', r*0.07],
+   [cx + r*0.4, cy - r*0.98, '#4488ff', r*0.07]].forEach(([gx, gy, gc, gr]) => {
+    ctx.fillStyle = gc;
+    ctx.shadowColor = gc; ctx.shadowBlur = 5;
+    ctx.beginPath(); ctx.arc(gx, gy, gr, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+  // 王冠の横帯装飾
+  ctx.strokeStyle = gold2; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.54, cy - r*0.82); ctx.lineTo(cx + r*0.54, cy - r*0.82); ctx.stroke();
 }
 
 function drawPaladin(cx, cy, r, col, bg) {
-  // 鎧ボディ
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-r*0.52, cy, r*1.04, r);
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.strokeRect(cx-r*0.52, cy, r*1.04, r);
-  // 十字紋
-  ctx.fillStyle=col;
-  ctx.fillRect(cx-r*0.09, cy+r*0.15, r*0.18, r*0.65);
-  ctx.fillRect(cx-r*0.33, cy+r*0.38, r*0.66, r*0.18);
-  // 肩パッド
-  ctx.fillStyle=col;
-  ctx.beginPath(); ctx.arc(cx-r*0.52,cy+r*0.15,r*0.22,Math.PI*0.5,Math.PI*1.5); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+r*0.52,cy+r*0.15,r*0.22,-Math.PI*0.5,Math.PI*0.5); ctx.fill();
-  // ヘルメット
-  ctx.fillStyle=bg;
+  const silver = '#b8c8d8';
+  const gold = '#FFD700';
+  // 体（鎧）
+  ctx.fillStyle = '#404858';
+  ctx.fillRect(cx - r*0.36, cy - r*0.18, r*0.72, r*1.0);
+  ctx.strokeStyle = silver; ctx.lineWidth = 2; ctx.stroke();
+  // 盾（右側）
+  ctx.fillStyle = '#1a1a30';
   ctx.beginPath();
-  ctx.arc(cx, cy-r*0.52, r*0.42, Math.PI, 0);
-  ctx.lineTo(cx+r*0.42, cy-r*0.08); ctx.lineTo(cx-r*0.42, cy-r*0.08);
+  ctx.moveTo(cx + r*0.22, cy - r*0.72); ctx.lineTo(cx + r*0.88, cy - r*0.72);
+  ctx.lineTo(cx + r*0.88, cy + r*0.42);
+  ctx.quadraticCurveTo(cx + r*0.88, cy + r*0.88, cx + r*0.55, cy + r*0.98);
+  ctx.quadraticCurveTo(cx + r*0.22, cy + r*0.88, cx + r*0.22, cy + r*0.42);
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle=col;
-  ctx.fillRect(cx-r*0.34, cy-r*0.54, r*0.68, r*0.1);
-  ctx.fillRect(cx-r*0.07, cy-r*0.9, r*0.14, r*0.48);
+  ctx.strokeStyle = gold; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = gold;
+  ctx.fillRect(cx + r*0.51, cy - r*0.55, r*0.08, r*1.4);
+  ctx.fillRect(cx + r*0.28, cy + r*0.06, r*0.54, r*0.08);
+  // ヘルメット
+  ctx.fillStyle = '#404858';
+  ctx.beginPath();
+  ctx.arc(cx - r*0.1, cy - r*0.52, r*0.4, Math.PI, 0);
+  ctx.lineTo(cx + r*0.3, cy - r*0.1); ctx.lineTo(cx - r*0.5, cy - r*0.1);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = silver; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = col;
+  ctx.fillRect(cx - r*0.36, cy - r*0.56, r*0.26, r*0.08);
+  ctx.fillRect(cx - r*0.04, cy - r*0.56, r*0.26, r*0.08);
 }
 
 function drawWizard(cx, cy, r, col, bg) {
-  // ローブ
-  ctx.fillStyle=bg;
+  const robe  = '#1a0830';
+  const purple = '#9933cc';
+  const glow  = '#dd88ff';
+
+  // 魔法陣（足元）
+  ctx.strokeStyle = purple + '88'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy + r*1.02, r*0.62, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy + r*1.02, r*0.44, 0, Math.PI*2); ctx.stroke();
+  for(let i=0;i<6;i++){
+    const a = i * Math.PI/3;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a)*r*0.44, cy + r*1.02 + Math.sin(a)*r*0.44);
+    ctx.lineTo(cx + Math.cos(a+Math.PI)*r*0.44, cy + r*1.02 + Math.sin(a+Math.PI)*r*0.44);
+    ctx.stroke();
+  }
+
+  // ローブ（裾広がり・重厚）
+  ctx.fillStyle = robe;
   ctx.beginPath();
-  ctx.moveTo(cx-r*0.65,cy+r); ctx.lineTo(cx-r*0.28,cy-r*0.02);
-  ctx.lineTo(cx+r*0.28,cy-r*0.02); ctx.lineTo(cx+r*0.65,cy+r);
+  ctx.moveTo(cx - r*0.78, cy + r*1.08);
+  ctx.lineTo(cx - r*0.24, cy - r*0.16);
+  ctx.lineTo(cx + r*0.24, cy - r*0.16);
+  ctx.lineTo(cx + r*0.78, cy + r*1.08);
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.fillStyle=col+'cc';
-  ctx.font=`${Math.floor(r*0.52)}px serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('✦', cx, cy+r*0.5);
-  // 顔
-  ctx.fillStyle=bg;
-  ctx.beginPath(); ctx.arc(cx, cy-r*0.28, r*0.3, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.strokeStyle = purple; ctx.lineWidth = 1.5; ctx.stroke();
+  // ローブの紋様ライン
+  ctx.strokeStyle = purple + '88'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx, cy - r*0.16); ctx.lineTo(cx, cy + r*1.08); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - r*0.18, cy + r*0.28); ctx.lineTo(cx + r*0.18, cy + r*0.28); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - r*0.32, cy + r*0.6); ctx.lineTo(cx + r*0.32, cy + r*0.6); ctx.stroke();
+
+  // 杖（左手・斜め上に掲げる）
+  ctx.strokeStyle = '#6a3a0a'; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.26, cy + r*0.5);
+  ctx.lineTo(cx - r*0.82, cy - r*1.12);
+  ctx.stroke();
+  // 杖の先端装飾（クロス）
+  ctx.strokeStyle = '#aa8844'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.96, cy - r*1.22); ctx.lineTo(cx - r*0.68, cy - r*1.02); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - r*0.98, cy - r*1.02); ctx.lineTo(cx - r*0.66, cy - r*1.22); ctx.stroke();
+  // 杖の宝石（紫グロー）
+  ctx.fillStyle = glow;
+  ctx.shadowColor = purple; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.arc(cx - r*0.82, cy - r*1.12, r*0.13, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx - r*0.82, cy - r*1.12, r*0.13, 0, Math.PI*2); ctx.stroke();
+
+  // 右手（魔法を放つ・手を前に伸ばす）
+  ctx.strokeStyle = '#d4b090'; ctx.lineWidth = r*0.16; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.2, cy + r*0.08);
+  ctx.lineTo(cx + r*0.72, cy - r*0.1);
+  ctx.stroke(); ctx.lineCap = 'butt';
+  // 魔法球（右手先・大きく輝く）
+  const gx = cx + r*0.84, gy = cy - r*0.18;
+  ctx.fillStyle = glow;
+  ctx.shadowColor = purple; ctx.shadowBlur = 14;
+  ctx.beginPath(); ctx.arc(gx, gy, r*0.28, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+  // 球の内側の核
+  ctx.fillStyle = purple;
+  ctx.beginPath(); ctx.arc(gx, gy, r*0.15, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(gx - r*0.06, gy - r*0.06, r*0.05, 0, Math.PI*2); ctx.fill();
+  // 球から放たれる光線
+  ctx.strokeStyle = glow + 'aa'; ctx.lineWidth = 1;
+  for(let i=0;i<6;i++){
+    const a = i * Math.PI/3 + Math.PI/6;
+    ctx.beginPath();
+    ctx.moveTo(gx + Math.cos(a)*r*0.28, gy + Math.sin(a)*r*0.28);
+    ctx.lineTo(gx + Math.cos(a)*r*0.46, gy + Math.sin(a)*r*0.46);
+    ctx.stroke();
+  }
+
+  // 顔（老齢・厳しい表情）
+  ctx.fillStyle = '#c8a880';
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.44, r*0.3, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = purple; ctx.lineWidth = 1; ctx.stroke();
+  // 眉（深くしかめた）
+  ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.2, cy - r*0.54); ctx.lineTo(cx - r*0.04, cy - r*0.5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + r*0.2, cy - r*0.54); ctx.lineTo(cx + r*0.04, cy - r*0.5); ctx.stroke();
+  // 目（深みのある目）
+  ctx.fillStyle = '#1a1a44';
+  ctx.beginPath(); ctx.arc(cx - r*0.1, cy - r*0.46, r*0.055, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r*0.1, cy - r*0.46, r*0.055, 0, Math.PI*2); ctx.fill();
+  // 長いひげ
+  ctx.fillStyle = '#e0e0e0';
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.24, cy - r*0.3);
+  ctx.bezierCurveTo(cx - r*0.34, cy + r*0.12, cx - r*0.2, cy + r*0.32, cx - r*0.08, cy + r*0.42);
+  ctx.bezierCurveTo(cx + r*0.04, cy + r*0.42, cx + r*0.18, cy + r*0.28, cx + r*0.24, cy - r*0.28);
+  ctx.closePath(); ctx.fill();
+  // ひげの線
+  ctx.strokeStyle = '#bbbbbb'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.06, cy - r*0.28); ctx.bezierCurveTo(cx - r*0.1, cy + r*0.1, cx - r*0.04, cy + r*0.3, cx, cy + r*0.4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + r*0.06, cy - r*0.28); ctx.bezierCurveTo(cx + r*0.1, cy + r*0.1, cx + r*0.06, cy + r*0.28, cx + r*0.04, cy + r*0.36); ctx.stroke();
+
   // 帽子つば
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-r*0.62, cy-r*0.55, r*1.24, r*0.17);
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.strokeRect(cx-r*0.62, cy-r*0.55, r*1.24, r*0.17);
-  // 帽子（背景より先に描画、後で線）
-  ctx.fillStyle=bg;
+  ctx.fillStyle = robe;
+  ctx.fillRect(cx - r*0.56, cy - r*0.7, r*1.12, r*0.15);
+  ctx.strokeStyle = purple; ctx.lineWidth = 1.5; ctx.stroke();
+  // 帽子本体（大きく先が曲がる）
+  ctx.fillStyle = robe;
   ctx.beginPath();
-  ctx.moveTo(cx, cy-r*1.52);
-  ctx.lineTo(cx-r*0.5, cy-r*0.55); ctx.lineTo(cx+r*0.5, cy-r*0.55);
+  ctx.moveTo(cx - r*0.46, cy - r*0.7);
+  ctx.lineTo(cx - r*0.22, cy - r*1.44);
+  ctx.quadraticCurveTo(cx + r*0.0, cy - r*1.52, cx + r*0.12, cy - r*1.38);
+  ctx.lineTo(cx + r*0.4, cy - r*0.7);
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-  ctx.fillStyle=col;
-  ctx.font=`${Math.floor(r*0.4)}px serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('★', cx, cy-r*1.0);
+  ctx.strokeStyle = purple; ctx.lineWidth = 1.5; ctx.stroke();
+  // 帽子の星（輝く）
+  ctx.fillStyle = '#ffee22';
+  ctx.shadowColor = '#ffaa00'; ctx.shadowBlur = 6;
+  ctx.font = `${Math.round(r*0.28)}px serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('★', cx + r*0.05, cy - r*1.05);
+  ctx.shadowBlur = 0;
+  // 帽子のバンド装飾
+  ctx.strokeStyle = purple + 'cc'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.38, cy - r*0.74);
+  ctx.lineTo(cx + r*0.32, cy - r*0.74);
+  ctx.stroke();
 }
 
 function drawGiant(cx, cy, r, col, bg) {
-  const R=r*1.22;
+  const skin = bg === '#001040' ? '#8899aa' : '#998877';
   // 足
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-R*0.52, cy+R*0.55, R*0.4, R*0.42);
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.strokeRect(cx-R*0.52, cy+R*0.55, R*0.4, R*0.42);
-  ctx.fillRect(cx+R*0.12, cy+R*0.55, R*0.4, R*0.42);
-  ctx.strokeRect(cx+R*0.12, cy+R*0.55, R*0.4, R*0.42);
+  ctx.fillStyle = skin;
+  ctx.fillRect(cx - r*0.5, cy + r*0.7, r*0.38, r*0.48);
+  ctx.fillRect(cx + r*0.12, cy + r*0.7, r*0.38, r*0.48);
   // 巨体
-  ctx.fillStyle=bg;
-  ctx.beginPath();
-  ctx.ellipse(cx, cy+R*0.18, R*0.72, R*0.6, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.stroke();
-  // 腕
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-R*0.88, cy+r*0.05, R*0.34, R*0.52);
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.strokeRect(cx-R*0.88, cy+r*0.05, R*0.34, R*0.52);
-  ctx.fillRect(cx+R*0.54, cy+r*0.05, R*0.34, R*0.52);
-  ctx.strokeRect(cx+R*0.54, cy+r*0.05, R*0.34, R*0.52);
-  // 頭（小）
-  ctx.fillStyle=bg;
-  ctx.beginPath(); ctx.arc(cx, cy-r*0.5, r*0.38, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-  // 怒り目
-  ctx.fillStyle=col;
-  ctx.beginPath(); ctx.arc(cx-r*0.13, cy-r*0.54, r*0.08, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+r*0.13, cy-r*0.54, r*0.08, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(cx, cy-r*0.26, r*0.15, Math.PI*1.1, Math.PI*1.9); ctx.stroke();
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.ellipse(cx, cy + r*0.22, r*0.76, r*0.68, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.stroke();
+  // 腕（左右に張り出す）
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.ellipse(cx - r*0.92, cy + r*0.14, r*0.28, r*0.52, 0.2, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx + r*0.92, cy + r*0.14, r*0.28, r*0.52, -0.2, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+  // 頭（小さめ）
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.6, r*0.36, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
+  // 怒り眉
+  ctx.strokeStyle = '#222'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.26, cy - r*0.72); ctx.lineTo(cx - r*0.06, cy - r*0.64); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + r*0.26, cy - r*0.72); ctx.lineTo(cx + r*0.06, cy - r*0.64); ctx.stroke();
+  // 目
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(cx - r*0.13, cy - r*0.6, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r*0.13, cy - r*0.6, r*0.08, 0, Math.PI*2); ctx.fill();
+  // 歯
+  ctx.fillStyle = '#eee';
+  ctx.fillRect(cx - r*0.12, cy - r*0.44, r*0.24, r*0.1);
 }
 
 function drawArcher(cx, cy, r, col, bg) {
-  // 足
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-r*0.28, cy+r*0.58, r*0.22, r*0.48);
-  ctx.strokeStyle=col; ctx.lineWidth=1;
-  ctx.strokeRect(cx-r*0.28, cy+r*0.58, r*0.22, r*0.48);
-  ctx.fillRect(cx+r*0.06, cy+r*0.58, r*0.22, r*0.48);
-  ctx.strokeRect(cx+r*0.06, cy+r*0.58, r*0.22, r*0.48);
-  // スリムボディ
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-r*0.28, cy-r*0.05, r*0.56, r*0.65);
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.strokeRect(cx-r*0.28, cy-r*0.05, r*0.56, r*0.65);
-  // 矢筒
-  ctx.fillStyle=bg;
-  ctx.fillRect(cx-r*0.55, cy-r*0.05, r*0.2, r*0.44);
-  ctx.strokeStyle=col; ctx.lineWidth=1;
-  ctx.strokeRect(cx-r*0.55, cy-r*0.05, r*0.2, r*0.44);
-  ctx.fillStyle=col;
-  for(let i=0;i<3;i++) ctx.fillRect(cx-r*0.51+i*r*0.07, cy-r*0.12, r*0.04, r*0.1);
-  // 顔
-  ctx.fillStyle=bg;
-  ctx.beginPath(); ctx.arc(cx, cy-r*0.38, r*0.3, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-  // 弓（右側の弧）
-  const bx=cx+r*0.22, by=cy+r*0.28, br=r*0.72;
-  ctx.strokeStyle=col; ctx.lineWidth=2.5;
-  ctx.beginPath(); ctx.arc(bx, by, br, -Math.PI*0.62, Math.PI*0.62); ctx.stroke();
-  const a=Math.PI*0.62;
-  const sx1=bx+br*Math.cos(-a), sy1=by+br*Math.sin(-a);
-  const sx2=bx+br*Math.cos(a),  sy2=by+br*Math.sin(a);
-  ctx.strokeStyle=col+'88'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
-  // 矢
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(cx-r*0.15,by); ctx.lineTo(sx2-r*0.05,by); ctx.stroke();
-  ctx.fillStyle=col;
-  ctx.beginPath(); ctx.moveTo(sx2,by); ctx.lineTo(sx2-r*0.14,by-r*0.08); ctx.lineTo(sx2-r*0.14,by+r*0.08); ctx.closePath(); ctx.fill();
+  const dark = '#182030';
+  const cloak = '#0e1a28';
+  const bow = '#7a4418';
+  const bowString = '#ddddaa';
+
+  // クローク（マント・後ろに流れる）
+  ctx.fillStyle = cloak;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.28, cy - r*0.1);
+  ctx.lineTo(cx - r*0.72, cy + r*1.1);
+  ctx.lineTo(cx + r*0.58, cy + r*1.1);
+  ctx.lineTo(cx + r*0.24, cy - r*0.1);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col + '66'; ctx.lineWidth = 1; ctx.stroke();
+
+  // 矢筒（背中・右後ろ）
+  ctx.fillStyle = bow;
+  ctx.fillRect(cx + r*0.3, cy - r*0.55, r*0.16, r*0.68);
+  ctx.strokeStyle = '#aa7744'; ctx.lineWidth = 1; ctx.stroke();
+  // 矢筒の矢3本
+  ctx.strokeStyle = bowString; ctx.lineWidth = 1;
+  for(let i=0;i<3;i++){
+    ctx.beginPath();
+    ctx.moveTo(cx + r*0.36 + i*r*0.05, cy - r*0.55);
+    ctx.lineTo(cx + r*0.36 + i*r*0.05, cy - r*0.92);
+    ctx.stroke();
+  }
+
+  // 体（細め・弓構えポーズで少し前傾）
+  ctx.fillStyle = dark;
+  ctx.fillRect(cx - r*0.22, cy - r*0.18, r*0.44, r*0.72);
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // 左腕（弓を押し出す）
+  ctx.strokeStyle = '#c89870'; ctx.lineWidth = r*0.17; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.18, cy + r*0.0);
+  ctx.lineTo(cx - r*0.72, cy - r*0.28);
+  ctx.stroke();
+
+  // 右腕（弦を引く・肘を張る）
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.18, cy + r*0.0);
+  ctx.lineTo(cx + r*0.6,  cy - r*0.08);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // 大弓（縦長・左前に構える）
+  ctx.strokeStyle = bow; ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.72, cy - r*1.05);
+  ctx.quadraticCurveTo(cx - r*1.08, cy - r*0.2, cx - r*0.72, cy + r*0.65);
+  ctx.stroke();
+  // 弦（引き絞り気味・弧を描く）
+  ctx.strokeStyle = bowString; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.72, cy - r*1.05);
+  ctx.quadraticCurveTo(cx - r*0.42, cy - r*0.2, cx - r*0.72, cy + r*0.65);
+  ctx.stroke();
+
+  // 矢（弦にセット・斜め狙い）
+  ctx.strokeStyle = bow; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.56, cy - r*0.28);
+  ctx.lineTo(cx + r*0.54, cy - r*0.14);
+  ctx.stroke();
+  // 矢じり
+  ctx.fillStyle = '#ccccaa';
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.54, cy - r*0.14);
+  ctx.lineTo(cx + r*0.38, cy - r*0.24);
+  ctx.lineTo(cx + r*0.38, cy - r*0.04);
+  ctx.closePath(); ctx.fill();
+  // 矢羽
+  ctx.strokeStyle = col + 'aa'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.56, cy - r*0.28); ctx.lineTo(cx - r*0.68, cy - r*0.18); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - r*0.56, cy - r*0.28); ctx.lineTo(cx - r*0.68, cy - r*0.38); ctx.stroke();
+
+  // 顔（横向き気味）
+  ctx.fillStyle = '#c89870';
+  ctx.beginPath(); ctx.arc(cx - r*0.04, cy - r*0.5, r*0.28, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.stroke();
+  // 目（鋭く狙う）
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.arc(cx - r*0.14, cy - r*0.52, r*0.05, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r*0.06, cy - r*0.52, r*0.05, 0, Math.PI*2); ctx.fill();
+  // 口（引き結ぶ）
+  ctx.strokeStyle = '#885544'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.1, cy - r*0.38); ctx.lineTo(cx + r*0.06, cy - r*0.38); ctx.stroke();
+
+  // フード（深めに被る）
+  ctx.fillStyle = cloak;
+  ctx.beginPath();
+  ctx.arc(cx - r*0.04, cy - r*0.5, r*0.28, Math.PI, 0);
+  ctx.lineTo(cx + r*0.3, cy - r*0.3);
+  ctx.lineTo(cx - r*0.36, cy - r*0.3);
+  ctx.closePath(); ctx.fill();
+  // フードの尖り
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.2, cy - r*0.76);
+  ctx.lineTo(cx + r*0.1, cy - r*1.36);
+  ctx.lineTo(cx + r*0.34, cy - r*0.76);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+  // 目の光（フードの影から）
+  ctx.fillStyle = col;
+  ctx.shadowColor = col; ctx.shadowBlur = 4;
+  ctx.beginPath(); ctx.arc(cx - r*0.14, cy - r*0.52, r*0.03, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
 }
 
 function drawGoblin(cx, cy, r, col, bg) {
-  // ボディ
-  ctx.fillStyle=bg;
-  ctx.beginPath();
-  ctx.ellipse(cx, cy+r*0.48, r*0.48, r*0.52, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
-  // 腕（細い線）
-  ctx.strokeStyle=col; ctx.lineWidth=2.5;
-  ctx.beginPath(); ctx.moveTo(cx-r*0.45,cy+r*0.22); ctx.lineTo(cx-r*0.82,cy+r*0.65); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx+r*0.45,cy+r*0.22); ctx.lineTo(cx+r*0.82,cy+r*0.65); ctx.stroke();
-  // 耳（左）
-  ctx.fillStyle=bg;
-  ctx.beginPath();
-  ctx.moveTo(cx-r*0.6, cy-r*0.6); ctx.lineTo(cx-r*0.28,cy-r*0.18); ctx.lineTo(cx-r*0.1,cy-r*0.42);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
-  // 耳（右）
-  ctx.fillStyle=bg;
-  ctx.beginPath();
-  ctx.moveTo(cx+r*0.6, cy-r*0.6); ctx.lineTo(cx+r*0.28,cy-r*0.18); ctx.lineTo(cx+r*0.1,cy-r*0.42);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+  const green = '#3a8018';
+  const darkG = '#1a5008';
+  // 体
+  ctx.fillStyle = green;
+  ctx.beginPath(); ctx.ellipse(cx, cy + r*0.48, r*0.4, r*0.48, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+  // 腕
+  ctx.strokeStyle = green; ctx.lineWidth = r*0.2; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx - r*0.36, cy + r*0.1); ctx.lineTo(cx - r*0.8, cy + r*0.68); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + r*0.36, cy + r*0.1); ctx.lineTo(cx + r*0.8, cy + r*0.68); ctx.stroke();
+  ctx.lineCap = 'butt';
+  // 大耳（左）
+  ctx.fillStyle = green;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.3, cy - r*0.36); ctx.lineTo(cx - r*1.0, cy - r*0.18); ctx.lineTo(cx - r*0.28, cy - r*0.06); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = darkG;
+  ctx.beginPath(); ctx.moveTo(cx - r*0.34, cy - r*0.28); ctx.lineTo(cx - r*0.82, cy - r*0.18); ctx.lineTo(cx - r*0.32, cy - r*0.1); ctx.closePath(); ctx.fill();
+  // 大耳（右）
+  ctx.fillStyle = green;
+  ctx.beginPath(); ctx.moveTo(cx + r*0.3, cy - r*0.36); ctx.lineTo(cx + r*1.0, cy - r*0.18); ctx.lineTo(cx + r*0.28, cy - r*0.06); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = darkG;
+  ctx.beginPath(); ctx.moveTo(cx + r*0.34, cy - r*0.28); ctx.lineTo(cx + r*0.82, cy - r*0.18); ctx.lineTo(cx + r*0.32, cy - r*0.1); ctx.closePath(); ctx.fill();
   // 頭
-  ctx.fillStyle=bg;
-  ctx.beginPath(); ctx.arc(cx, cy-r*0.3, r*0.37, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
-  // 大きな目
-  ctx.fillStyle=col;
-  ctx.beginPath(); ctx.arc(cx-r*0.14, cy-r*0.35, r*0.11, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+r*0.14, cy-r*0.35, r*0.11, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle=bg;
-  ctx.beginPath(); ctx.arc(cx-r*0.11, cy-r*0.38, r*0.04, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx+r*0.17, cy-r*0.38, r*0.04, 0, Math.PI*2); ctx.fill();
-  // 牙
-  ctx.fillStyle=col;
-  ctx.fillRect(cx-r*0.05, cy-r*0.15, r*0.1, r*0.13);
+  ctx.fillStyle = green;
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.36, r*0.36, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+  // 目（黄色・縦スリット）
+  ctx.fillStyle = '#ddcc00';
+  ctx.beginPath(); ctx.ellipse(cx - r*0.13, cy - r*0.4, r*0.11, r*0.09, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + r*0.13, cy - r*0.4, r*0.11, r*0.09, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(cx - r*0.13, cy - r*0.4, r*0.03, r*0.08, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + r*0.13, cy - r*0.4, r*0.03, r*0.08, 0, 0, Math.PI*2); ctx.fill();
+  // 口と牙
+  ctx.strokeStyle = darkG; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.2, r*0.15, Math.PI*0.1, Math.PI*0.9); ctx.stroke();
+  ctx.fillStyle = '#eeeebb';
+  ctx.beginPath(); ctx.moveTo(cx - r*0.06, cy - r*0.16); ctx.lineTo(cx - r*0.11, cy - r*0.06); ctx.lineTo(cx - r*0.01, cy - r*0.06); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx + r*0.06, cy - r*0.16); ctx.lineTo(cx + r*0.11, cy - r*0.06); ctx.lineTo(cx + r*0.01, cy - r*0.06); ctx.closePath(); ctx.fill();
+}
+
+function _drawGoblin_unused(cx, cy, r, col, bg) {
+  const skin = '#4a8820';
+  const skinDark = '#2a5410';
+  const leather = '#5a3010';
+  const cloth = '#7a1818';
+
+  // ボディ（レザーアーマー）
+  ctx.fillStyle = leather;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + r*0.42, r*0.4, r*0.48, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.stroke();
+
+  // 腰巻き（赤いぼろ布）
+  ctx.fillStyle = cloth;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.4, cy + r*0.35);
+  ctx.lineTo(cx - r*0.48, cy + r*0.98);
+  ctx.lineTo(cx + r*0.48, cy + r*0.98);
+  ctx.lineTo(cx + r*0.4, cy + r*0.35);
+  ctx.closePath(); ctx.fill();
+
+  // 左腕（緑の肌）
+  ctx.strokeStyle = skin; ctx.lineWidth = r*0.2; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.38, cy + r*0.05);
+  ctx.lineTo(cx - r*0.75, cy + r*0.58);
+  ctx.stroke(); ctx.lineCap = 'butt';
+
+  // 右腕（緑の肌）
+  ctx.strokeStyle = skin; ctx.lineWidth = r*0.2; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.38, cy + r*0.05);
+  ctx.lineTo(cx + r*0.75, cy + r*0.58);
+  ctx.stroke(); ctx.lineCap = 'butt';
+
+  // 曲刀（左手）
+  ctx.strokeStyle = '#999999'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.7, cy + r*0.55);
+  ctx.quadraticCurveTo(cx - r*0.95, cy + r*0.88, cx - r*0.6, cy + r*1.04);
+  ctx.stroke();
+  ctx.strokeStyle = '#cccccc'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.72, cy + r*0.52);
+  ctx.quadraticCurveTo(cx - r*1.0, cy + r*0.86, cx - r*0.58, cy + r*1.06);
+  ctx.stroke();
+
+  // 提灯（右手）
+  ctx.strokeStyle = '#667733'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.75, cy + r*0.6);
+  ctx.lineTo(cx + r*0.78, cy + r*0.82); ctx.stroke();
+  ctx.fillStyle = '#332200';
+  ctx.beginPath(); ctx.arc(cx + r*0.78, cy + r*0.96, r*0.15, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#667733'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = '#aaff22';
+  ctx.shadowColor = '#88ff00'; ctx.shadowBlur = 7;
+  ctx.beginPath(); ctx.arc(cx + r*0.78, cy + r*0.96, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // 大耳（左）
+  ctx.fillStyle = skin;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.32, cy - r*0.38);
+  ctx.lineTo(cx - r*0.9,  cy - r*0.3);
+  ctx.lineTo(cx - r*0.3,  cy - r*0.14);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = skinDark;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.36, cy - r*0.33);
+  ctx.lineTo(cx - r*0.78, cy - r*0.3);
+  ctx.lineTo(cx - r*0.34, cy - r*0.18);
+  ctx.closePath(); ctx.fill();
+
+  // 大耳（右）
+  ctx.fillStyle = skin;
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.32, cy - r*0.38);
+  ctx.lineTo(cx + r*0.9,  cy - r*0.3);
+  ctx.lineTo(cx + r*0.3,  cy - r*0.14);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = skinDark;
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.36, cy - r*0.33);
+  ctx.lineTo(cx + r*0.78, cy - r*0.3);
+  ctx.lineTo(cx + r*0.34, cy - r*0.18);
+  ctx.closePath(); ctx.fill();
+
+  // 頭（緑の肌）
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.32, r*0.37, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // フード（ボロ三角フード）
+  ctx.fillStyle = leather;
+  ctx.beginPath();
+  ctx.moveTo(cx - r*0.4, cy - r*0.38);
+  ctx.lineTo(cx - r*0.08, cy - r*0.95);
+  ctx.lineTo(cx + r*0.08, cy - r*0.95);
+  ctx.lineTo(cx + r*0.4, cy - r*0.38);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = col + '55'; ctx.lineWidth = 1; ctx.stroke();
+
+  // 目（黄色、縦スリット瞳孔）
+  ctx.fillStyle = '#ccaa00';
+  ctx.beginPath(); ctx.ellipse(cx - r*0.13, cy - r*0.34, r*0.1, r*0.08, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + r*0.13, cy - r*0.34, r*0.1, r*0.08, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#221100';
+  ctx.beginPath(); ctx.ellipse(cx - r*0.13, cy - r*0.34, r*0.03, r*0.07, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + r*0.13, cy - r*0.34, r*0.03, r*0.07, 0, 0, Math.PI*2); ctx.fill();
+
+  // 口（ニヤリ笑い）
+  ctx.strokeStyle = skinDark; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy - r*0.17, r*0.17, Math.PI*0.1, Math.PI*0.9); ctx.stroke();
+  // 牙2本
+  ctx.fillStyle = '#eeeebb';
+  ctx.beginPath(); ctx.moveTo(cx - r*0.07, cy - r*0.12); ctx.lineTo(cx - r*0.12, cy - r*0.02); ctx.lineTo(cx - r*0.02, cy - r*0.02); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx + r*0.07, cy - r*0.12); ctx.lineTo(cx + r*0.12, cy - r*0.02); ctx.lineTo(cx + r*0.02, cy - r*0.02); ctx.closePath(); ctx.fill();
 }
 
 function drawUnit(u) {
   const d=DEF[u.type];
+  const isPlayer=u.owner==='player';
   const cx=u.x*CELL+CELL/2;
   const cy=u.y*CELL+CELL/2-3;
   const r=CELL*0.30;
-  const col=u.owner==='player'?d.pc:d.ec;
-  const bg=u.owner==='player'?'#001040':'#2a0000';
+  const col=isPlayer?d.pc:d.ec;
+  const bg=isPlayer?'#001040':'#2a0000';
+  const teamR=isPlayer?'#0044cc':'#cc1100';
+  const teamG=isPlayer?'rgba(0,80,220,0.18)':'rgba(200,20,0,0.18)';
+  const teamBright=isPlayer?'#2266ff':'#ff3311';
   ctx.globalAlpha=u.done?0.38:1.0;
 
-  // 影
+  // セル背景（陣営カラー）
+  const rx=u.x*CELL+2, ry=u.y*CELL+2, rw=CELL-4, rh=CELL-4;
+  ctx.fillStyle=teamG;
+  ctx.beginPath(); ctx.roundRect(rx,ry,rw,rh,5); ctx.fill();
+
+  // セル枠（陣営カラー・太め）
+  ctx.strokeStyle=teamBright;
+  ctx.lineWidth=isPlayer?2.2:2.2;
+  ctx.shadowColor=teamBright; ctx.shadowBlur=8;
+  ctx.beginPath(); ctx.roundRect(rx,ry,rw,rh,5); ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // 影（足元）
   ctx.fillStyle='rgba(0,0,0,0.4)';
   ctx.beginPath();
   ctx.ellipse(cx+1, u.y*CELL+CELL-14, r*0.85, r*0.28, 0, 0, Math.PI*2);
@@ -854,14 +2185,42 @@ function drawUnit(u) {
     case 'goblin':  drawGoblin(cx,cy,r,col,bg);  break;
   }
 
+  // 陣営マーカー（右下三角）
+  const mx=u.x*CELL+CELL-3, my=u.y*CELL+CELL-3;
+  ctx.fillStyle=teamBright;
+  ctx.shadowColor=teamBright; ctx.shadowBlur=5;
+  ctx.beginPath();
+  ctx.moveTo(mx,my); ctx.lineTo(mx-12,my); ctx.lineTo(mx,my-12);
+  ctx.closePath(); ctx.fill();
+  ctx.shadowBlur=0;
+
   // HPバー
   const bw=CELL-10, bh=5;
   const bx=u.x*CELL+5, by=u.y*CELL+CELL-9;
-  ctx.fillStyle='#1a1a1a';
+  ctx.fillStyle='rgba(0,0,0,0.6)';
   ctx.fillRect(bx,by,bw,bh);
   const ratio=u.hp/u.maxHp;
   ctx.fillStyle=ratio>0.55?'#33dd33':ratio>0.25?'#ddbb11':'#dd2222';
   ctx.fillRect(bx,by,Math.round(bw*ratio),bh);
+  // HPバー枠
+  ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.lineWidth=0.8;
+  ctx.strokeRect(bx,by,bw,bh);
+
+  // レベル表示（Lv2以上に★）
+  if(u.level>=2){
+    const stars='★'.repeat(u.level-1);
+    ctx.globalAlpha=1.0;
+    ctx.font=`bold ${Math.round(CELL*0.17)}px sans-serif`;
+    ctx.textAlign='left';
+    ctx.textBaseline='top';
+    ctx.fillStyle='#000';
+    ctx.fillText(stars, u.x*CELL+5+1, u.y*CELL+3+1);
+    ctx.fillStyle= u.level>=3 ? '#ff8800' : '#ffdd00';
+    ctx.shadowColor= u.level>=3 ? '#ff6600' : '#ffcc00';
+    ctx.shadowBlur=4;
+    ctx.fillText(stars, u.x*CELL+5, u.y*CELL+3);
+    ctx.shadowBlur=0;
+  }
 
   ctx.globalAlpha=1.0;
 }
@@ -874,24 +2233,51 @@ function getCell(clientX,clientY){
   return(x>=0&&x<COLS&&y>=0&&y<ROWS)?{x,y}:null;
 }
 
-let touchStartX=0, touchStartY=0;
+let touchStartX=0, touchStartY=0, touchTimer=null;
 canvas.addEventListener('touchstart',e=>{
   touchStartX=e.touches[0].clientX;
   touchStartY=e.touches[0].clientY;
+  // 長押し（400ms）でユニット情報表示
+  touchTimer=setTimeout(()=>{
+    const c=getCell(touchStartX, touchStartY);
+    if(c){ const u=unitAt(c.x,c.y); if(u) showInfo(u); }
+  }, 400);
 },{passive:true});
 canvas.addEventListener('touchend',e=>{
   e.preventDefault();
+  clearTimeout(touchTimer);
   const t=e.changedTouches[0];
-  // スワイプ距離が小さい場合のみタップとみなす
-  if(Math.abs(t.clientX-touchStartX)<10 && Math.abs(t.clientY-touchStartY)<10){
+  if(Math.abs(t.clientX-touchStartX)<12 && Math.abs(t.clientY-touchStartY)<12){
     const c=getCell(t.clientX,t.clientY);
     if(c) handleClick(c.x,c.y);
   }
 },{passive:false});
+canvas.addEventListener('touchmove',e=>{
+  clearTimeout(touchTimer);
+},{passive:true});
 canvas.addEventListener('click',e=>{
   const c=getCell(e.clientX,e.clientY);
   if(c) handleClick(c.x,c.y);
 });
+
+// ─── Androidバックボタン対応 ─────────────────────────────
+(function(){
+  function pushOverlay(){ history.pushState({kok:true},''); }
+  // 最初のスタックを積む
+  if(history.state?.kok !== true) pushOverlay();
+  window.addEventListener('popstate',()=>{
+    if(document.getElementById('qr-overlay').classList.contains('show')){
+      hideQR(); pushOverlay(); return;
+    }
+    if(document.getElementById('legend-overlay').classList.contains('show')){
+      hideLegend(); pushOverlay(); return;
+    }
+    if(document.getElementById('game-over').classList.contains('show')){
+      pushOverlay(); return;
+    }
+    pushOverlay(); // 常に戻るをキャンセル（アプリ内で完結）
+  });
+})();
 
 // ─── Service Worker登録 ──────────────────────────────────
 if('serviceWorker' in navigator){
@@ -899,9 +2285,11 @@ if('serviceWorker' in navigator){
 }
 
 // ─── 起動 ────────────────────────────────────────────────
-startGame();
-resize();
-requestAnimationFrame(loop);
+preloadImages(() => {
+  startGame();
+  resize();
+  requestAnimationFrame(loop);
+});
 </script>
 </body>
 </html>

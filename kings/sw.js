@@ -1,5 +1,18 @@
-const CACHE = 'kok-v1';
-const FILES = ['./', './index.html', './manifest.json', './icon.svg'];
+const CACHE = 'kok-v4';
+const FILES = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './king.png',
+  './wizard.png',
+  './giant.png',
+  './goblin.png',
+  './archer.png',
+  './paladin.png'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
