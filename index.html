@@ -5,6 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>咲家つる丸 | 京丹波産の瑞穂蕎麦</title>
   <meta name="description" content="京丹波産の瑞穂蕎麦「咲家つる丸」。挽きたて・打ちたて・茹でたての本格二八そばをご提供しています。京都府船井郡京丹波町。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://naochan2026.github.io/">
+
+  <!-- OGP -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="咲家つる丸">
+  <meta property="og:title" content="咲家つる丸 | 京丹波産の瑞穂蕎麦">
+  <meta property="og:description" content="京丹波産の瑞穂蕎麦「咲家つる丸」。挽きたて・打ちたて・茹でたての本格二八そばをご提供しています。京都府船井郡京丹波町。">
+  <meta property="og:url" content="https://naochan2026.github.io/">
+  <meta property="og:image" content="https://naochan2026.github.io/soba_meal.jpg">
+  <meta property="og:image:width" content="4080">
+  <meta property="og:image:height" content="3060">
+  <meta property="og:locale" content="ja_JP">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="咲家つる丸 | 京丹波産の瑞穂蕎麦">
+  <meta name="twitter:description" content="京丹波産の瑞穂蕎麦「咲家つる丸」。挽きたて・打ちたて・茹でたての本格二八そばをご提供しています。京都府船井郡京丹波町。">
+  <meta name="twitter:image" content="https://naochan2026.github.io/soba_meal.jpg">
+
+  <!-- 構造化データ（Restaurant / LocalBusiness） -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "咲家つる丸",
+    "image": "https://naochan2026.github.io/soba_meal.jpg",
+    "url": "https://naochan2026.github.io/",
+    "telephone": "+81-90-1074-0260",
+    "servesCuisine": "そば",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "橋爪上中島29-2",
+      "addressLocality": "京丹波町",
+      "addressRegion": "京都府",
+      "postalCode": "622-0321",
+      "addressCountry": "JP"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "11:00",
+        "closes": "14:30"
+      }
+    ],
+    "sameAs": [
+      "https://www.instagram.com/sakuya.turumaru/"
+    ]
+  }
+  </script>
+
+  <script src="analytics.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
   <style>
@@ -25,7 +78,7 @@
       --deep:     #111e13;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
 
     body {
       font-family: "Noto Serif JP", "Hiragino Mincho ProN", serif;
@@ -36,6 +89,8 @@
       overflow-x: hidden;
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
+      word-break: keep-all;
+      overflow-wrap: break-word;
     }
 
     a { color: inherit; text-decoration: none; }
@@ -1267,12 +1322,19 @@
       background: #3d5c2a;
       color: #fff;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 6px 10px;
       font-size: 16px;
       letter-spacing: 0.1em;
-      padding: 17px;
+      padding: 14px 17px;
+    }
+
+    .sp-tel-bar a span { white-space: nowrap; }
+
+    @media (max-width: 420px) {
+      .sp-tel-bar a { font-size: 14px; letter-spacing: 0.06em; }
     }
 
     /* ========== レスポンシブ ========== */
@@ -1315,6 +1377,7 @@
       .gallery-main { min-height: 320px; }
       .gallery-side { min-height: 280px; }
       .gallery-bar { flex-direction: column; gap: 14px; padding: 32px 24px; text-align: center; }
+      .gallery-bar-tag { white-space: normal; letter-spacing: 0.15em; font-size: 13px; }
 
       .menu-tabs { overflow-x: auto; justify-content: flex-start; scrollbar-width: none; }
       .menu-tabs::-webkit-scrollbar { display: none; }
@@ -1372,7 +1435,8 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24 11.47 11.47 0 0 0 3.58.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.47 11.47 0 0 0 .57 3.58 1 1 0 0 1-.25 1.01z"/>
     </svg>
-    タップして電話する　090-1074-0260
+    <span class="sp-tel-label">タップして電話する</span>
+    <span class="sp-tel-num">090-1074-0260</span>
   </a>
 </div>
 
@@ -1767,6 +1831,9 @@
     document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
     e.currentTarget.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
+    if (window.trackSiteEvent) {
+      window.trackSiteEvent('menu_tab_click', { menu_tab: name });
+    }
   }
 
   /* ハンバーガー */

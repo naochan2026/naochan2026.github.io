@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>咲家つる丸 アクセスマップ ｜ 道の駅さらびきから</title>
+  <meta name="description" content="京都府船井郡京丹波町の「咲家つる丸」への行き方。道の駅さらびきからのアクセスマップです。">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://naochan2026.github.io/access_map.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="咲家つる丸">
+  <meta property="og:title" content="咲家つる丸 アクセスマップ ｜ 道の駅さらびきから">
+  <meta property="og:description" content="京都府船井郡京丹波町の「咲家つる丸」への行き方。道の駅からのアクセスマップです。">
+  <meta property="og:url" content="https://naochan2026.github.io/access_map.html">
+  <meta property="og:image" content="https://naochan2026.github.io/exterior.jpg">
+  <meta property="og:locale" content="ja_JP">
+
+  <script src="analytics.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+      background: #e8e4d8;
+      color: #1e180a;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+
+    /* ── ヘッダー ── */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.55em;
+      color: #4a7a3a;
+      border: 1px solid #6a9a52;
+      padding: 5px 20px;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .page-sub {
+      font-size: 14px;
+      color: #7a6840;
+      letter-spacing: 0.25em;
+    }
+
+    /* ── 地図 ── */
+    .map-box {
+      background: white;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.14);
+      margin-bottom: 32px;
+    }
+
+    .map-box svg { display: block; width: 100%; height: auto; }
+
+    /* ── 道順 ── */
+    .section-title {
+      font-size: 13px;
+      letter-spacing: 0.5em;
+      color: #4a7a3a;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #b0c898;
+    }
+
+    .steps {
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 48px;
+      flex-shrink: 0;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: #b0c898;
+      min-height: 20px;
+    }
+
+    .step:last-child .step-line { display: none; }
+
+    .step-body {
+      padding: 0 0 24px 16px;
+      flex: 1;
+    }
+
+    .step-main {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      padding-top: 4px;
+    }
+
+    .step-sub {
+      font-size: 15px;
+      color: #5a5030;
+      line-height: 1.8;
+    }
+
+    /* ── 情報ボックス ── */
+    .info-box {
+      background: #f0f5e6;
+      border: 1.5px solid #a8c080;
+      border-radius: 8px;
+      padding: 28px 28px;
+    }
+
+    .info-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: #2a4a18;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #b8cc90;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 12px;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .info-label {
+      flex-shrink: 0;
+      width: 5em;
+      color: #5a7840;
+      font-weight: 600;
+    }
+
+    .info-val { color: #2a2010; }
+
+    .info-note {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid #b8cc90;
+      font-size: 13px;
+      color: #7a7050;
+      letter-spacing: 0.08em;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 480px) {
+      .page-title { font-size: 21px; }
+      .step-main { font-size: 18px; }
+      .info-box { padding: 22px 18px; }
+    }
+
+    @media print {
+      body { background: white; }
+      .page { padding: 10px; }
+      .map-box { box-shadow: none; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="badge">ACCESS MAP</div>
+    <h1 class="page-title">道の駅さらびき から<br>咲家つる丸 へ</h1>
+    <p class="page-sub">お車で 約5〜10分 ／ 約3km</p>
+  </div>
+
+  <!-- 地図 SVG -->
+  <div class="map-box">
+    <svg viewBox="0 0 480 490" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- 矢印（ルート） -->
+        <marker id="arr-red" viewBox="0 0 12 12" refX="10" refY="6"
+          markerWidth="9" markerHeight="9" orient="auto">
+          <path d="M1,1 L11,6 L1,11 Z" fill="#d02010"/>
+        </marker>
+        <!-- 矢印（道路） -->
+        <marker id="arr-wh" viewBox="0 0 10 10" refX="8" refY="5"
+          markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" fill="rgba(255,255,255,0.55)"/>
+        </marker>
+
+        <!-- 影フィルター -->
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity="0.18"/>
+        </filter>
+      </defs>
+
+      <!-- ── 背景（緑の里山） ── -->
+      <rect width="480" height="490" fill="#b8d498"/>
+
+      <!-- 田んぼ・畑エリア -->
+      <rect x="0"   y="0"   width="480" height="120" fill="#cce0a8" opacity="0.7"/>
+      <rect x="240" y="180" width="240" height="310" fill="#c4dc9c" opacity="0.6"/>
+      <rect x="0"   y="300" width="160" height="190" fill="#c0d898" opacity="0.7"/>
+
+      <!-- 田んぼらしいライン -->
+      <line x1="0" y1="340" x2="160" y2="340" stroke="#a8c880" stroke-width="1" opacity="0.6"/>
+      <line x1="0" y1="380" x2="160" y2="380" stroke="#a8c880" stroke-width="1" opacity="0.6"/>
+      <line x1="60" y1="300" x2="60" y2="490" stroke="#a8c880" stroke-width="1" opacity="0.6"/>
+      <line x1="110" y1="300" x2="110" y2="490" stroke="#a8c880" stroke-width="1" opacity="0.6"/>
+
+
+      <!-- ── 国道9号（東西） ── -->
+      <!-- 道路本体（オレンジ系国道カラー） -->
+      <rect x="0" y="142" width="480" height="22" fill="#e0a820"/>
+      <!-- 白ライン上下 -->
+      <line x1="0" y1="142" x2="480" y2="142" stroke="white" stroke-width="2"/>
+      <line x1="0" y1="164" x2="480" y2="164" stroke="white" stroke-width="2"/>
+      <!-- センタライン -->
+      <line x1="240" y1="153" x2="480" y2="153" stroke="white" stroke-width="1.5" stroke-dasharray="16,10" opacity="0.7"/>
+      <line x1="0"   y1="153" x2="210" y2="153" stroke="white" stroke-width="1.5" stroke-dasharray="16,10" opacity="0.7"/>
+
+      <!-- R9 路線番号バッジ -->
+      <rect x="10" y="147" width="36" height="22" rx="4" fill="#c02818"/>
+      <text x="28" y="163" font-family="sans-serif" font-size="13" font-weight="700"
+        fill="white" text-anchor="middle">9</text>
+
+      <!-- 方向ラベル -->
+      <text x="54" y="156" font-family="Noto Serif JP,serif" font-size="10" fill="#6a4008">← 福知山方面</text>
+      <text x="312" y="156" font-family="Noto Serif JP,serif" font-size="10" fill="#6a4008">丹波IC → 京都方面 →</text>
+
+      <!-- ── 国道173号（南北） ── -->
+      <!-- 道路本体 -->
+      <rect x="199" y="0" width="22" height="490" fill="#e0a820"/>
+      <!-- 白ライン左右 -->
+      <line x1="199" y1="0" x2="199" y2="490" stroke="white" stroke-width="2"/>
+      <line x1="221" y1="0" x2="221" y2="490" stroke="white" stroke-width="2"/>
+      <!-- センタライン（縦） -->
+      <line x1="210" y1="175" x2="210" y2="490" stroke="white" stroke-width="1.5" stroke-dasharray="16,10" opacity="0.7"/>
+      <line x1="210" y1="0"   x2="210" y2="140" stroke="white" stroke-width="1.5" stroke-dasharray="16,10" opacity="0.7"/>
+
+      <!-- R173 路線番号バッジ -->
+      <rect x="230" y="225" width="46" height="22" rx="4" fill="#c02818"/>
+      <text x="253" y="241" font-family="sans-serif" font-size="12" font-weight="700"
+        fill="white" text-anchor="middle">173</text>
+      <text x="230" y="258" font-family="Noto Serif JP,serif" font-size="10" fill="#6a4008">↑ 綾部方面</text>
+
+      <!-- ── R9 × R173 交差点（和田） ── -->
+      <rect x="199" y="142" width="22" height="22" fill="#c88010"/>
+      <circle cx="210" cy="153" r="7" fill="#e8c020" stroke="white" stroke-width="2"/>
+
+      <!-- 信号機（R173左側・R9上） -->
+      <line x1="172" y1="138" x2="172" y2="142" stroke="#555" stroke-width="3"/>
+      <rect x="163" y="102" width="18" height="36" rx="4" fill="#2a2a2a"/>
+      <rect x="165" y="104" width="14" height="32" rx="3" fill="#1a1a1a"/>
+      <circle cx="172" cy="111" r="5" fill="#e83020"/>
+      <circle cx="172" cy="120" r="5" fill="#d0b020" opacity="0.45"/>
+      <circle cx="172" cy="129" r="5" fill="#20b030" opacity="0.45"/>
+
+      <!-- 和田 ラベル -->
+      <rect x="128" y="167" width="46" height="20" rx="3" fill="white" opacity="0.9"/>
+      <text x="151" y="181" font-family="Noto Serif JP,serif" font-size="13" font-weight="700"
+        fill="#2a1a08" text-anchor="middle">和田</text>
+
+      <!-- ── ルート強調（赤点線） ── -->
+      <!-- 第1区間：さらびき（R173接続点）→ R9交差点 -->
+      <line x1="210" y1="368" x2="210" y2="166"
+        stroke="#d02010" stroke-width="5"
+        stroke-dasharray="14,9"
+        opacity="0.92"/>
+
+      <!-- 第2区間：R9交差点 → つる丸（右へ進んで上へ） -->
+      <path d="M 221 153 L 370 153 L 370 130"
+        stroke="#d02010" stroke-width="5"
+        stroke-dasharray="14,9" fill="none"
+        marker-end="url(#arr-red)" opacity="0.92"/>
+
+      <!-- 距離ラベル -->
+      <rect x="222" y="280" width="64" height="24" rx="4" fill="white" opacity="0.88"/>
+      <text x="254" y="297" font-family="Noto Serif JP,serif" font-size="13" font-weight="700"
+        fill="#d02010" text-anchor="middle">約 2km</text>
+
+      <!-- ── 木々（里山らしく） ── -->
+      <!-- 左エリア -->
+      <ellipse cx="38"  cy="210" rx="22" ry="28" fill="#4a8038"/>
+      <ellipse cx="55"  cy="225" rx="17" ry="22" fill="#5a9048"/>
+      <ellipse cx="24"  cy="228" rx="15" ry="19" fill="#3a7028"/>
+      <ellipse cx="48"  cy="190" rx="12" ry="15" fill="#62a050"/>
+
+      <ellipse cx="42"  cy="420" rx="20" ry="26" fill="#4a8038"/>
+      <ellipse cx="58"  cy="432" rx="15" ry="20" fill="#5a9048"/>
+
+      <ellipse cx="162" cy="240" rx="18" ry="24" fill="#4a8038"/>
+      <ellipse cx="178" cy="252" rx="14" ry="18" fill="#5a9048"/>
+      <ellipse cx="152" cy="258" rx="12" ry="16" fill="#3a7028"/>
+
+      <!-- 右エリア -->
+      <ellipse cx="400" cy="320" rx="22" ry="28" fill="#4a8038"/>
+      <ellipse cx="418" cy="332" rx="17" ry="22" fill="#5a9048"/>
+      <ellipse cx="390" cy="335" rx="14" ry="18" fill="#3a7028"/>
+
+      <ellipse cx="420" cy="420" rx="18" ry="24" fill="#4a8038"/>
+      <ellipse cx="438" cy="430" rx="14" ry="18" fill="#5a9048"/>
+
+      <ellipse cx="355" cy="110" rx="16" ry="20" fill="#4a8038"/>
+      <ellipse cx="372" cy="100" rx="12" ry="16" fill="#5a9048"/>
+
+      <ellipse cx="440" cy="210" rx="18" ry="24" fill="#4a8038"/>
+      <ellipse cx="456" cy="220" rx="14" ry="18" fill="#5a9048"/>
+      <ellipse cx="432" cy="226" rx="10" ry="14" fill="#3a7028"/>
+
+      <!-- ── 道の駅さらびき マーカー（R173右側） ── -->
+      <g filter="url(#shadow)">
+        <rect x="228" y="340" width="194" height="56" rx="8" fill="#1654a0"/>
+        <rect x="230" y="342" width="190" height="52" rx="7" fill="none" stroke="#4888d0" stroke-width="1.5"/>
+      </g>
+      <!-- R173からボックスへの水平ポインター -->
+      <line x1="221" y1="368" x2="228" y2="368" stroke="#d02010" stroke-width="3"/>
+      <!-- アイコン（P駐車場） -->
+      <circle cx="254" cy="368" r="16" fill="#3a7ac0"/>
+      <text x="254" y="374" font-family="sans-serif" font-size="16" font-weight="700"
+        fill="white" text-anchor="middle">P</text>
+      <!-- ラベル -->
+      <text x="278" y="356" font-family="Noto Serif JP,serif" font-size="9"
+        fill="#80b0e0" letter-spacing="3">スタート</text>
+      <text x="278" y="376" font-family="Noto Serif JP,serif" font-size="17" font-weight="700"
+        fill="white">道の駅さらびき</text>
+
+      <!-- ── 咲家つる丸 マーカー（R9上側） ── -->
+      <g filter="url(#shadow)">
+        <rect x="290" y="68" width="180" height="56" rx="8" fill="#b83010"/>
+        <rect x="292" y="70" width="176" height="52" rx="7" fill="none" stroke="#e05838" stroke-width="1.5"/>
+      </g>
+      <!-- ボックスからR9への垂直ポインター -->
+      <line x1="370" y1="124" x2="370" y2="142" stroke="#d02010" stroke-width="3"/>
+      <!-- GOALバッジ -->
+      <rect x="298" y="76" width="54" height="20" rx="4" fill="#e05838"/>
+      <text x="325" y="90" font-family="Noto Serif JP,serif" font-size="11" font-weight="700"
+        fill="white" text-anchor="middle">GOAL !</text>
+      <!-- ラベル -->
+      <text x="298" y="111" font-family="Noto Serif JP,serif" font-size="19" font-weight="700"
+        fill="white">咲家つる丸</text>
+
+      <!-- ── コンパス ── -->
+      <g transform="translate(445, 45)">
+        <circle cx="0" cy="0" r="24" fill="white" opacity="0.88" stroke="#88a060" stroke-width="1.5"/>
+        <polygon points="0,-17 4.5,-4 0,1 -4.5,-4" fill="#c02010"/>
+        <polygon points="0,17  4.5,4  0,-1 -4.5,4"  fill="#9ab888"/>
+        <text x="0" y="-20" font-family="sans-serif" font-size="12" font-weight="700"
+          fill="#c02010" text-anchor="middle">N</text>
+      </g>
+
+      <!-- ── 凡例 ── -->
+      <rect x="8" y="460" width="464" height="26" rx="3" fill="rgba(255,255,255,0.6)"/>
+      <line x1="18" y1="473" x2="40" y2="473" stroke="#d02010" stroke-width="4" stroke-dasharray="10,6"/>
+      <text x="48" y="478" font-family="Noto Serif JP,serif" font-size="11" fill="#3a3020">推奨ルート</text>
+      <rect x="130" y="466" width="24" height="14" rx="2" fill="#e0a820"/>
+      <text x="162" y="478" font-family="Noto Serif JP,serif" font-size="11" fill="#3a3020">国道</text>
+      <text x="338" y="478" font-family="Noto Serif JP,serif" font-size="11" fill="#555" font-style="italic">※概略図（目安）</text>
+
+      <!-- 枠線 -->
+      <rect x="1" y="1" width="478" height="488" fill="none" stroke="#8a9a60" stroke-width="2" rx="3"/>
+    </svg>
+  </div>
+
+  <!-- 道順 -->
+  <div class="section-title">道　順</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num" style="background:#1654a0;">①</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-main">道の駅さらびきを出発</div>
+        <div class="step-sub">グリーンランドみずほの隣。<br>駐車場を出て <strong>国道173号を北（綾部方面）</strong> へ進みます。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num" style="background:#4a8038;">②</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-main">国道173号を約2km 北へ直進</div>
+        <div class="step-sub">みずほICを左手に見ながらそのまま直進。<br>国道9号との交差点が近づいたら速度を落とします。<br><span style="color:#888;">（所要時間：約3〜4分）</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num" style="background:#4a8038;">③</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-main">橋爪上中島 方面へ</div>
+        <div class="step-sub">国道9号交差点付近から <strong>橋爪上中島</strong> 方面へ進みます。<br>道が細くなりますのでゆっくりお進みください。<br><span style="color:#c05010;">※ お迷いの場合はお電話ください → 090-1074-0260</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num" style="background:#b83010;">④</div>
+      </div>
+      <div class="step-body">
+        <div class="step-main">咲家つる丸 に到着！</div>
+        <div class="step-sub">駐車場は 25台分 ございます。<br>〒622-0321 京都府船井郡京丹波町橋爪上中島29-2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 店舗情報 -->
+  <div class="info-box">
+    <div class="info-name">咲 家 つ る 丸</div>
+    <div class="info-row">
+      <div class="info-label">住　所</div>
+      <div class="info-val">〒622-0321<br>京都府船井郡京丹波町橋爪上中島29-2</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">電　話</div>
+      <div class="info-val">090-1074-0260</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">営業時間</div>
+      <div class="info-val">11:00 〜 14:30</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">定休日</div>
+      <div class="info-val">水曜日</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">駐車場</div>
+      <div class="info-val">25台（無料）</div>
+    </div>
+    <div class="info-note">
+      ※ この地図は概略図です。詳細な道順は、カーナビで「京丹波町橋爪上中島29-2」とご入力いただくか、お電話にてご確認ください。
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
