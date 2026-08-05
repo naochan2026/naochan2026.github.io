@@ -1,0 +1,9 @@
+# Local Netlify folder
+.netlify
+
+# 依存パッケージ
+node_modules
+
+# 非公開プロジェクト（誤って公開リポジトリにpushしない）
+kings/
+ehon_*.png
